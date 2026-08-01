@@ -1,0 +1,4 @@
+package-lock.json linguist-generated=true
+src/routeTree.gen.ts linguist-generated=true
+worker-configuration.d.ts linguist-generated=true whitespace=-trailing-space
+oauth-worker-configuration.d.ts linguist-generated=true whitespace=-trailing-space
