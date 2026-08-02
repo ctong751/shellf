@@ -4,6 +4,9 @@
   "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
+  "secrets": {
+    "required": ["DATABASE_URL"],
+  },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
