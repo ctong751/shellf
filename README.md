@@ -17,16 +17,16 @@ app currently displays the signed-in user's Bluesky profile.
 ## Requirements
 
 - Node.js 22 or newer
-- npm
+- pnpm 11
 - Docker (for the local Postgres instance)
 - A Cloudflare account for deployment
 
 ## Local development
 
 ```bash
-npm install
+pnpm install
 cp .env.example .env   # then fill in values
-npm run dev            # start Postgres, apply migrations, and start the app
+pnpm run dev           # start Postgres, apply migrations, and start the app
 ```
 
 Open `http://127.0.0.1:3000`. AT Protocol's loopback OAuth profile requires a
@@ -35,9 +35,9 @@ intentionally binds to `127.0.0.1` rather than `localhost` or a LAN address.
 On loopback origins the app uses AT Protocol's unregistered `http://localhost`
 development client, so no public metadata is needed for local sign-in.
 
-Postgres stays running across app restarts. Stop it with `npm run db:down`. To
+Postgres stays running across app restarts. Stop it with `pnpm run db:down`. To
 start only the app process, such as when using an external database, run
-`npm run dev:app`.
+`pnpm run dev:app`.
 
 ## Database
 
@@ -46,11 +46,11 @@ stays a connection-string swap. Schema lives in `src/db/schema.ts`; migrations
 in `drizzle/`.
 
 ```bash
-npm run db:up          # start Postgres and wait until it is healthy
-npm run db:generate    # create a migration from schema changes
-npm run db:migrate     # apply pending migrations
-npm run db:studio      # browse data
-npm run db:down        # stop the container
+pnpm run db:up          # start Postgres and wait until it is healthy
+pnpm run db:generate    # create a migration from schema changes
+pnpm run db:migrate     # apply pending migrations
+pnpm run db:studio      # browse data
+pnpm run db:down        # stop the container
 ```
 
 Current tables are auth-only: `users`, `sessions` (cookie sessions, hashed
@@ -73,12 +73,12 @@ that emulates it via `redirect: 'manual'`, and a custom DID-document resolver.
 ## Quality checks
 
 ```bash
-npm run check
-npm run build
-npm run deploy:dry-run
+pnpm run check
+pnpm run build
+pnpm run deploy:dry-run
 ```
 
-`npm run check` runs formatting, linting, type checking, and tests. Pull
+`pnpm run check` runs formatting, linting, type checking, and tests. Pull
 requests and pushes to `main` run the same checks in GitHub Actions. Checks do
 not require the database.
 
@@ -87,9 +87,9 @@ not require the database.
 Authenticate Wrangler, review the Worker name in `wrangler.jsonc`, and deploy:
 
 ```bash
-npx wrangler login
-npm run deploy:dry-run
-npm run deploy
+pnpm exec wrangler login
+pnpm run deploy:dry-run
+pnpm run deploy
 ```
 
 The production client ID is the deployed origin plus

@@ -1,0 +1,6 @@
+allowBuilds:
+  core-js: false
+  esbuild: true
+  workerd: true
+minimumReleaseAgeExclude:
+  - '@types/pg@8.20.3'

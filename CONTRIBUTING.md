@@ -5,24 +5,24 @@ Thanks for helping improve Shellf.
 ## Development
 
 1. Install Node.js 22 or newer and Docker.
-2. Run `npm install`.
+2. Run `pnpm install`.
 3. Copy `.env.example` to `.env` and fill in values.
-4. Run `npm run dev` to start Postgres, apply migrations, and start the app.
+4. Run `pnpm run dev` to start Postgres, apply migrations, and start the app.
 5. Open `http://127.0.0.1:3000`.
 
-Postgres stays running when the app stops. Run `npm run db:down` when you no
-longer need it. Use `npm run dev:app` to start only the app process.
+Postgres stays running when the app stops. Run `pnpm run db:down` when you no
+longer need it. Use `pnpm run dev:app` to start only the app process.
 
 Before opening a pull request, run:
 
 ```bash
-npm run check
-npm run build
-npm run deploy:dry-run
+pnpm run check
+pnpm run build
+pnpm run deploy:dry-run
 ```
 
 Generated files such as `src/routeTree.gen.ts` and the Wrangler type declarations
-are committed. Regenerate Cloudflare types with `npm run cf-typegen` after changing
+are committed. Regenerate Cloudflare types with `pnpm run cf-typegen` after changing
 bindings.
 
 ## Pull requests
