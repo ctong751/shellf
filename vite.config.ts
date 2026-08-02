@@ -1,4 +1,5 @@
 import { cloudflare } from '@cloudflare/vite-plugin'
+import tailwindcss from '@tailwindcss/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
@@ -10,6 +11,22 @@ const hmrClientPort = Number.parseInt(
 )
 
 export default defineConfig({
+  environments: {
+    ssr: {
+      define: {
+        // React 19 uses this optional Node API for development stack traces,
+        // but workerd currently exposes it as a throwing stub.
+        'console.createTask': 'undefined',
+      },
+      optimizeDeps: {
+        esbuildOptions: {
+          define: {
+            'console.createTask': 'undefined',
+          },
+        },
+      },
+    },
+  },
   server: {
     allowedHosts: hmrHost ? [hmrHost] : [],
     hmr: hmrHost
@@ -25,6 +42,7 @@ export default defineConfig({
   plugins: [
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
     tanstackStart(),
+    tailwindcss(),
     react(),
   ],
 })

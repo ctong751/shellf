@@ -1,16 +1,113 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap');
-@import './tokens.css';
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@custom-variant data-horizontal {
+  &:where([data-orientation='horizontal']) {
+    @slot;
+  }
+}
+
+@custom-variant data-vertical {
+  &:where([data-orientation='vertical']) {
+    @slot;
+  }
+}
 
 :root {
-  color: var(--color-ink);
-  background: var(--color-canvas);
-  font-family: var(--font-sans);
+  --background: #f4f0e6;
+  --foreground: #25271f;
+  --card: rgba(255, 253, 247, 0.46);
+  --card-foreground: #25271f;
+  --popover: #fffdf7;
+  --popover-foreground: #25271f;
+  --primary: #25271f;
+  --primary-foreground: #f4f0e6;
+  --secondary: #eae3d4;
+  --secondary-foreground: #25271f;
+  --muted: #eae3d4;
+  --muted-foreground: #696c5f;
+  --accent: #b94d31;
+  --accent-foreground: #fffdf7;
+  --destructive: #9f3827;
+  --border: rgba(37, 39, 31, 0.18);
+  --input: rgba(37, 39, 31, 0.24);
+  --ring: #455d4a;
+  --radius: 0rem;
+
+  --supporting: #455d4a;
+  --highlight: #ce963c;
+  --placeholder: #a49f91;
+  --subtle: #7e7f75;
+  --accent-soft: rgba(185, 77, 49, 0.12);
+  --supporting-soft: rgba(69, 93, 74, 0.12);
+  --highlight-soft: rgba(206, 150, 60, 0.09);
+
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Manrope', sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
 
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Brand extensions used by Shellf's editorial artwork. */
+  --color-canvas: var(--background);
+  --color-canvas-deep: var(--secondary);
+  --color-ink: var(--foreground);
+  --color-supporting: var(--supporting);
+  --color-highlight: var(--highlight);
+  --color-placeholder: var(--placeholder);
+  --color-danger: var(--destructive);
+  --color-subtle: var(--subtle);
+  --color-surface: var(--card);
+  --color-accent-soft: var(--accent-soft);
+  --color-supporting-soft: var(--supporting-soft);
+  --color-highlight-soft: var(--highlight-soft);
+
+  --font-sans: 'Manrope', sans-serif;
+  --font-display: 'Newsreader', serif;
+  --font-mono: 'DM Mono', monospace;
+
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+
+  --shadow-card: 0 18px 50px rgba(51, 44, 31, 0.06);
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
 * {
   box-sizing: border-box;
+  border-color: var(--border);
 }
 
 html {
@@ -53,6 +150,11 @@ input {
 button,
 a {
   -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']) {
+  cursor: pointer;
 }
 
 h1,

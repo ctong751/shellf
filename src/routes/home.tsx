@@ -1,8 +1,23 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CalendarCheckIcon,
+  CheckIcon,
+} from 'lucide-react'
 import { useRef, useState, type ReactNode } from 'react'
 import { Button } from '#/components/ui/Button'
+import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '#/components/ui/empty'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '#/components/ui/tabs'
 import { getViewer, signOut } from '#/lib/auth'
-import styles from './home.module.css'
+import { cn } from '#/lib/utils'
 
 type Accent = 'amber' | 'blue' | 'green' | 'ochre' | 'plum' | 'rust' | 'slate'
 type HomeTab = 'watch-list' | 'upcoming'
@@ -241,6 +256,16 @@ const getErrorMessage = (error: unknown) =>
     ? error.message
     : 'Something went wrong. Please try again.'
 
+const posterAccentClasses: Record<Accent, string> = {
+  amber: 'bg-[#b78334]',
+  blue: 'bg-[#526b78]',
+  green: 'bg-[#3f5d4b]',
+  ochre: 'bg-[#b57c2b]',
+  plum: 'bg-[#755363]',
+  rust: 'bg-[#a84931]',
+  slate: 'bg-[#4d5557]',
+}
+
 const Home = () => {
   const viewer = Route.useLoaderData()
   const router = useRouter()
@@ -358,31 +383,39 @@ const Home = () => {
   const watchListCount = watchingItems.length + savedItems.length
 
   return (
-    <main className={styles.page}>
-      <nav className={styles.nav} aria-label="Primary navigation">
-        <a className={styles.wordmark} href="/home" aria-label="Shellf home">
+    <main className="mx-auto min-h-screen w-full max-w-[1480px] overflow-hidden px-[4vw] max-[700px]:px-5">
+      <nav
+        className="flex min-h-[88px] items-center justify-between border-b border-border max-[700px]:min-h-[76px]"
+        aria-label="Primary navigation"
+      >
+        <a
+          className="inline-flex items-center gap-[0.7rem] font-display text-[1.9rem] font-medium tracking-[-0.06em] text-ink no-underline max-[700px]:text-[1.7rem]"
+          href="/home"
+          aria-label="Shellf home"
+        >
           <ShellfMark />
           shellf
         </a>
 
-        <div className={styles['profile-menu']}>
-          <div className={styles['profile-copy']}>
-            <span>{viewer.displayName}</span>
-            <span>@{viewer.handle}</span>
+        <div className="flex items-center gap-3 max-[430px]:gap-[0.45rem]">
+          <div className="grid text-right max-[700px]:hidden">
+            <span className="font-display text-[0.95rem] font-medium">
+              {viewer.displayName}
+            </span>
+            <span className="font-mono text-[0.59rem] text-muted-foreground">
+              @{viewer.handle}
+            </span>
           </div>
-          {viewer.avatar ? (
-            <img src={viewer.avatar} alt="" className={styles.avatar} />
-          ) : (
-            <div
-              className={`${styles.avatar} ${styles['avatar-fallback']}`}
-              aria-hidden="true"
-            >
+          <Avatar size="lg" className="max-[430px]:size-9">
+            <AvatarImage src={viewer.avatar} alt="" />
+            <AvatarFallback>
               {viewer.displayName.slice(0, 1).toUpperCase()}
-            </div>
-          )}
+            </AvatarFallback>
+          </Avatar>
           <Button
-            className={styles['sign-out']}
-            variant="text"
+            className="ml-[0.45rem] max-[700px]:ml-0 max-[700px]:text-[0.68rem]"
+            size="xs"
+            variant="link"
             disabled={isSigningOut}
             onClick={() => void handleSignOut()}
             type="button"
@@ -393,74 +426,65 @@ const Home = () => {
       </nav>
 
       {signOutError && (
-        <p className={styles.error} role="alert">
+        <p className="mt-6 text-[0.76rem] text-destructive" role="alert">
           {signOutError}
         </p>
       )}
 
-      <section className={styles.collection} aria-label="Your collection">
-        <div className={styles.tabs} role="tablist" aria-label="Collection">
-          <button
-            className={activeTab === 'watch-list' ? styles.active : undefined}
-            id="watch-list-tab"
-            type="button"
-            role="tab"
-            aria-controls="watch-list-panel"
-            aria-selected={activeTab === 'watch-list'}
-            onClick={() => setActiveTab('watch-list')}
-          >
-            Watch List
-            <span>{watchListCount}</span>
-          </button>
-          <button
-            className={activeTab === 'upcoming' ? styles.active : undefined}
-            id="upcoming-tab"
-            type="button"
-            role="tab"
-            aria-controls="upcoming-panel"
-            aria-selected={activeTab === 'upcoming'}
-            onClick={() => setActiveTab('upcoming')}
-          >
-            Upcoming
-            <span>0</span>
-          </button>
-        </div>
+      <section className="min-h-[470px]" aria-label="Your collection">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as HomeTab)}
+          className="gap-0"
+        >
+          <TabsList variant="collection" aria-label="Collection">
+            <TabsTrigger value="watch-list">
+              Watch List
+              <span>{watchListCount}</span>
+            </TabsTrigger>
+            <TabsTrigger value="upcoming">
+              Upcoming
+              <span>0</span>
+            </TabsTrigger>
+          </TabsList>
 
-        {activeTab === 'watch-list' ? (
-          <div
-            className={styles['watch-list-panel']}
-            id="watch-list-panel"
-            role="tabpanel"
-            aria-labelledby="watch-list-tab"
+          <TabsContent
+            className="[animation:panel-in_220ms_ease_both]"
+            value="watch-list"
           >
-            <section className={styles['continue-section']}>
+            <section className="pt-[clamp(2.4rem,4vw,3.8rem)]">
               <SectionHeading
                 count={`${watchingItems.length} active`}
                 eyebrow="Continue watching"
                 title="Pick up where you left off."
               >
                 {watchingItems.length > 1 && (
-                  <div className={styles['carousel-actions']}>
-                    <button
-                      type="button"
+                  <div className="flex [&_button+button]:-ml-px">
+                    <Button
+                      size="icon"
+                      variant="outline"
                       aria-label="Scroll Continue Watching left"
                       onClick={() => scrollQueue(-1)}
                     >
-                      <ArrowIcon direction="left" />
-                    </button>
-                    <button
-                      type="button"
+                      <ArrowLeftIcon aria-hidden="true" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="outline"
                       aria-label="Scroll Continue Watching right"
                       onClick={() => scrollQueue(1)}
                     >
-                      <ArrowIcon direction="right" />
-                    </button>
+                      <ArrowRightIcon aria-hidden="true" />
+                    </Button>
                   </div>
                 )}
               </SectionHeading>
 
               {watchingItems.length > 0 ? (
-                <div className={styles['progress-carousel']} ref={queueRef}>
+                <div
+                  className="mt-[1.8rem] flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-[0.8rem] [scrollbar-color:var(--color-accent)_var(--color-canvas-deep)] [scrollbar-width:thin]"
+                  ref={queueRef}
+                >
                   {watchingItems.map((item) => (
                     <ProgressCard
                       item={item}
@@ -476,10 +500,10 @@ const Home = () => {
               )}
             </section>
 
-            <section className={styles['recent-section']}>
+            <section className="mt-[clamp(2.7rem,4vw,3.8rem)]">
               <CompactHeading title="Recently watched" />
               {recentItems.length > 0 ? (
-                <div className={styles['recent-row']}>
+                <div className="grid grid-cols-3 border-b border-border max-[900px]:grid-cols-[repeat(3,minmax(300px,1fr))] max-[900px]:overflow-x-auto">
                   {recentItems.slice(0, 3).map((item) => (
                     <RecentCard item={item} key={item.id} onUndo={handleUndo} />
                   ))}
@@ -491,13 +515,13 @@ const Home = () => {
               )}
             </section>
 
-            <section className={styles['saved-section']}>
+            <section className="mt-[clamp(2.7rem,4vw,3.8rem)]">
               <CompactHeading
                 eyebrow={`${savedItems.length} available`}
                 title="Want to watch"
               />
               {savedItems.length > 0 ? (
-                <div className={styles['saved-grid']}>
+                <div className="grid grid-cols-4 gap-4 pt-4 max-[900px]:grid-cols-2 max-[900px]:gap-y-8 max-[700px]:grid-cols-2 max-[700px]:gap-x-3 max-[700px]:gap-y-6 max-[430px]:grid-cols-1">
                   {savedItems.map((item) => (
                     <SavedCard
                       item={item}
@@ -512,20 +536,19 @@ const Home = () => {
                 </InlineEmptyState>
               )}
             </section>
-          </div>
-        ) : (
-          <EmptyState
-            id="upcoming-panel"
-            labelledBy="upcoming-tab"
-            eyebrow="Nothing on the horizon"
-            title="Upcoming releases, all in one place."
-            description="Release dates for titles on your watch list will appear here as they get closer."
-            icon={<CalendarIcon />}
-          />
-        )}
+          </TabsContent>
+          <TabsContent value="upcoming">
+            <EmptyState
+              eyebrow="Nothing on the horizon"
+              title="Upcoming releases, all in one place."
+              description="Release dates for titles on your watch list will appear here as they get closer."
+              icon={<CalendarCheckIcon className="size-13" />}
+            />
+          </TabsContent>
+        </Tabs>
       </section>
 
-      <footer className={styles.footer}>
+      <footer className="mt-14 flex items-center justify-between border-t border-border pt-6 pb-8 font-mono text-[0.59rem] tracking-[0.06em] text-muted-foreground uppercase [&_p]:m-0">
         <p>Shellf / your place for what’s next</p>
       </footer>
     </main>
@@ -558,13 +581,19 @@ const SectionHeading = ({
   eyebrow,
   title,
 }: SectionHeadingProps) => (
-  <header className={styles['section-heading']}>
+  <header className="flex items-end justify-between gap-8">
     <div>
-      <p>{eyebrow}</p>
-      <h1>{title}</h1>
+      <p className="mb-[0.55rem] font-mono text-[0.6rem] tracking-[0.1em] text-supporting uppercase">
+        {eyebrow}
+      </p>
+      <h1 className="font-display text-[clamp(2.6rem,4.5vw,4.5rem)] leading-[0.95] font-normal tracking-[-0.055em] max-[430px]:max-w-60">
+        {title}
+      </h1>
     </div>
-    <div className={styles['heading-tools']}>
-      <span>{count}</span>
+    <div className="flex items-center gap-4 pb-[0.2rem]">
+      <span className="font-mono text-[0.58rem] tracking-[0.08em] whitespace-nowrap text-muted-foreground uppercase max-[700px]:hidden">
+        {count}
+      </span>
       {children}
     </div>
   </header>
@@ -592,34 +621,46 @@ const ProgressCard = ({ item, onMarkWatched }: ProgressCardProps) => {
     : item.runtime
 
   return (
-    <article className={styles['progress-card']}>
+    <article className="grid min-h-[242px] flex-[0_0_min(380px,calc(100vw-3rem))] snap-start grid-cols-[minmax(112px,0.72fr)_minmax(0,1.28fr)] border border-border bg-surface shadow-card max-[700px]:basis-[min(350px,calc(100vw-3rem))] max-[700px]:grid-cols-[106px_minmax(0,1fr)] max-[430px]:basis-[calc(100vw-3rem)]">
       <Poster accent={item.accent} title={item.title} />
-      <div className={styles['progress-copy']}>
-        <span className={styles.kicker}>{kicker}</span>
-        <h2>{item.title}</h2>
-        <p>{subtitle}</p>
-        <p className={styles.description}>{description}</p>
-        <div className={styles['progress-meta']}>
+      <div className="flex min-w-0 flex-col p-[1.2rem] max-[700px]:p-4">
+        <span className="font-mono text-[0.56rem] tracking-[0.09em] text-supporting uppercase">
+          {kicker}
+        </span>
+        <h2 className="mt-[0.38rem] truncate font-display text-[1.55rem] font-medium tracking-[-0.04em]">
+          {item.title}
+        </h2>
+        <p className="mt-[0.1rem] text-[0.72rem] text-muted-foreground">
+          {subtitle}
+        </p>
+        <p className="mt-[0.7rem] mb-auto line-clamp-2 overflow-hidden font-display text-[0.69rem] leading-[1.4] text-muted-foreground max-[430px]:line-clamp-3">
+          {description}
+        </p>
+        <div className="mt-[0.9rem] mb-[0.42rem] flex justify-between font-mono text-[0.52rem] text-muted-foreground uppercase">
           <span>{remaining}</span>
           <span>{progress}%</span>
         </div>
         <div
-          className={styles['progress-track']}
+          className="h-1 w-full overflow-hidden bg-canvas-deep"
           role="progressbar"
           aria-label={`${item.title} progress`}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={progress}
         >
-          <span style={{ width: `${progress}%` }} />
+          <span
+            className="block h-full bg-accent"
+            style={{ width: `${progress}%` }}
+          />
         </div>
-        <button
-          className={styles['primary-action']}
+        <Button
+          className="mt-3 w-full"
+          size="sm"
           type="button"
           onClick={() => onMarkWatched(item.id)}
         >
-          <CheckIcon /> Mark watched
-        </button>
+          <CheckIcon data-icon="inline-start" aria-hidden="true" /> Mark watched
+        </Button>
       </div>
     </article>
   )
@@ -631,9 +672,15 @@ interface CompactHeadingProps {
 }
 
 const CompactHeading = ({ eyebrow, title }: CompactHeadingProps) => (
-  <header className={styles['compact-heading']}>
-    <h2>{title}</h2>
-    {eyebrow && <span>{eyebrow}</span>}
+  <header className="flex items-center justify-between border-b border-border pb-[0.8rem]">
+    <h2 className="font-display text-2xl font-medium tracking-[-0.025em]">
+      {title}
+    </h2>
+    {eyebrow && (
+      <span className="font-mono text-[0.54rem] tracking-[0.07em] text-muted-foreground uppercase">
+        {eyebrow}
+      </span>
+    )}
   </header>
 )
 
@@ -643,16 +690,26 @@ interface RecentCardProps {
 }
 
 const RecentCard = ({ item, onUndo }: RecentCardProps) => (
-  <article className={styles['recent-card']}>
-    <Poster accent={item.accent} title={item.title} />
+  <article className="grid min-w-0 grid-cols-[66px_minmax(0,1fr)_auto] items-center gap-[0.9rem] border-r border-border p-4 last:border-r-0">
+    <Poster
+      accent={item.accent}
+      className="min-h-[76px] [&>span]:hidden"
+      title={item.title}
+    />
     <div>
-      <span>{item.time}</span>
-      <h3>{item.title}</h3>
-      <p>{item.meta}</p>
+      <span className="font-mono text-[0.49rem] text-muted-foreground uppercase">
+        {item.time}
+      </span>
+      <h3 className="mt-[0.28rem] mb-[0.08rem] truncate font-display text-base font-medium">
+        {item.title}
+      </h3>
+      <p className="truncate text-[0.59rem] text-muted-foreground">
+        {item.meta}
+      </p>
     </div>
-    <button type="button" onClick={() => onUndo(item)}>
+    <Button size="xs" variant="link" type="button" onClick={() => onUndo(item)}>
       Undo
-    </button>
+    </Button>
   </article>
 )
 
@@ -662,99 +719,104 @@ interface SavedCardProps {
 }
 
 const SavedCard = ({ item, onStartWatching }: SavedCardProps) => (
-  <article className={styles['saved-card']}>
-    <Poster accent={item.accent} title={item.title} />
-    <div>
-      <h3>{item.title}</h3>
-      <p className={styles['saved-description']}>{item.description}</p>
-      <p className={styles.availability}>
-        <span /> {item.availability}
+  <article className="flex min-w-0 flex-col">
+    <Poster
+      accent={item.accent}
+      className="min-h-[220px] max-[700px]:min-h-[190px] max-[430px]:min-h-[250px]"
+      title={item.title}
+    />
+    <div className="py-[0.8rem]">
+      <h3 className="truncate font-display text-[1.12rem] font-medium">
+        {item.title}
+      </h3>
+      <p className="mt-[0.48rem] mb-[0.68rem] line-clamp-2 min-h-[2.7em] overflow-hidden font-display text-[0.7rem] leading-[1.35] text-muted-foreground">
+        {item.description}
+      </p>
+      <p className="flex items-center gap-[0.35rem] font-mono text-[0.51rem] text-muted-foreground uppercase">
+        <span className="h-1.5 w-1.5 rounded-full bg-supporting" />{' '}
+        {item.availability}
       </p>
     </div>
-    <button type="button" onClick={() => onStartWatching(item)}>
+    <Button
+      className="mt-auto w-full"
+      size="sm"
+      variant="outline"
+      type="button"
+      onClick={() => onStartWatching(item)}
+    >
       Start watching
-    </button>
+    </Button>
   </article>
 )
 
 interface PosterProps {
   accent: Accent
+  className?: string
   title: string
 }
 
-const Poster = ({ accent, title }: PosterProps) => (
-  <div className={`${styles.poster} ${styles[accent]}`} aria-hidden="true">
+const Poster = ({ accent, className, title }: PosterProps) => (
+  <div
+    className={cn(
+      "relative isolate grid min-h-[180px] items-end justify-items-start overflow-hidden bg-supporting before:absolute before:inset-[12%] before:-z-10 before:rounded-[50%_50%_7%_7%] before:border before:border-[rgba(255,255,255,0.36)] before:content-[''] after:absolute after:right-[-50%] after:-bottom-[12%] after:-z-10 after:h-[45%] after:w-[150%] after:-rotate-[18deg] after:bg-[rgba(244,240,230,0.15)] after:content-[''] [&>span]:p-4 [&>span]:font-display [&>span]:text-[1.15rem] [&>span]:tracking-[-0.025em] [&>span]:text-[rgba(255,255,255,0.94)]",
+      posterAccentClasses[accent],
+      className,
+    )}
+    aria-hidden="true"
+  >
     <span>{title}</span>
   </div>
 )
 
 const InlineEmptyState = ({ children }: { children: ReactNode }) => (
-  <p className={styles['inline-empty']}>{children}</p>
+  <Empty className="items-start border-b border-border p-8 text-left">
+    <EmptyDescription className="font-display text-[0.9rem]">
+      {children}
+    </EmptyDescription>
+  </Empty>
 )
 
 interface EmptyStateProps {
   description: string
   eyebrow: string
   icon: ReactNode
-  id: string
-  labelledBy: string
   title: string
 }
 
-const EmptyState = ({
-  description,
-  eyebrow,
-  icon,
-  id,
-  labelledBy,
-  title,
-}: EmptyStateProps) => (
-  <div
-    className={styles['empty-state']}
-    id={id}
-    role="tabpanel"
-    aria-labelledby={labelledBy}
-  >
-    <div className={styles['empty-art']} aria-hidden="true">
-      <span className={styles['art-index']}>02</span>
-      <div className={styles['icon-wrap']}>{icon}</div>
-      <span className={styles['art-note']}>ready when you are</span>
-    </div>
-    <div className={styles['empty-copy']}>
-      <p>{eyebrow}</p>
-      <h2>{title}</h2>
-      <span>{description}</span>
-    </div>
-  </div>
+const EmptyState = ({ description, eyebrow, icon, title }: EmptyStateProps) => (
+  <Empty className="grid min-h-[380px] grid-cols-[minmax(250px,0.7fr)_minmax(0,1.3fr)] items-center gap-[clamp(2.5rem,7vw,7rem)] px-[5vw] py-[clamp(2.8rem,5vw,4.5rem)] max-[700px]:grid-cols-1 max-[700px]:gap-10 max-[700px]:px-0">
+    <EmptyMedia className="relative grid aspect-[1.3] w-full max-w-[310px] place-items-center border border-border bg-surface shadow-card before:absolute before:top-[15%] before:bottom-[15%] before:left-[18px] before:w-px before:bg-border before:content-[''] after:absolute after:right-[15%] after:bottom-[18px] after:left-[15%] after:h-px after:bg-border after:content-['']">
+      <span className="absolute top-3.5 left-4 font-mono text-[0.52rem] tracking-[0.09em] text-muted-foreground uppercase">
+        02
+      </span>
+      <div className="grid size-[100px] place-items-center rounded-full bg-accent-soft text-accent">
+        {icon}
+      </div>
+      <span className="absolute right-[13px] bottom-[9px] font-mono text-[0.52rem] tracking-[0.09em] text-muted-foreground uppercase">
+        ready when you are
+      </span>
+    </EmptyMedia>
+    <EmptyHeader className="max-w-[620px] items-start text-left">
+      <p className="mb-[0.8rem] font-mono text-[0.62rem] tracking-[0.1em] text-supporting uppercase">
+        {eyebrow}
+      </p>
+      <EmptyTitle className="mb-4 font-display text-[clamp(2.6rem,4.5vw,4.8rem)] leading-[0.98] font-normal tracking-[-0.055em]">
+        {title}
+      </EmptyTitle>
+      <EmptyDescription className="max-w-[480px] text-[0.82rem] leading-[1.7]">
+        {description}
+      </EmptyDescription>
+    </EmptyHeader>
+  </Empty>
 )
 
 const ShellfMark = () => (
-  <span className={styles['wordmark-mark']} aria-hidden="true">
+  <span
+    className="grid w-[27px] gap-1 [&_span]:block [&_span]:h-0.5 [&_span]:bg-accent [&_span:nth-child(2)]:ml-[25%] [&_span:nth-child(2)]:w-3/4 [&_span:nth-child(3)]:w-[55%]"
+    aria-hidden="true"
+  >
     <span />
     <span />
     <span />
   </span>
-)
-
-const CheckIcon = () => (
-  <svg viewBox="0 0 20 20" aria-hidden="true">
-    <path d="m4 10 4 4 8-9" />
-  </svg>
-)
-
-const ArrowIcon = ({ direction }: { direction: 'left' | 'right' }) => (
-  <svg viewBox="0 0 20 20" aria-hidden="true">
-    {direction === 'left' ? (
-      <path d="m12.5 4.5-5.5 5.5 5.5 5.5M7.5 10H17" />
-    ) : (
-      <path d="m7.5 4.5 5.5 5.5-5.5 5.5M3 10h9.5" />
-    )}
-  </svg>
-)
-
-const CalendarIcon = () => (
-  <svg viewBox="0 0 96 96">
-    <path d="M15 22h66v61H15V22ZM15 40h66M32 12v19M64 12v19" />
-    <path d="m40 58 7 7 13-15" />
-  </svg>
 )
