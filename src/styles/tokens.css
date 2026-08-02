@@ -1,0 +1,25 @@
+:root {
+  --color-canvas: #f4f0e6;
+  --color-canvas-deep: #eae3d4;
+  --color-ink: #25271f;
+  --color-muted: #696c5f;
+  --color-border: rgba(37, 39, 31, 0.18);
+  --color-accent: #b94d31;
+  --color-supporting: #455d4a;
+  --color-highlight: #ce963c;
+  --color-placeholder: #a49f91;
+  --color-danger: #9f3827;
+  --color-subtle: #7e7f75;
+  --color-surface-translucent: rgba(255, 253, 247, 0.46);
+  --color-accent-soft: rgba(185, 77, 49, 0.12);
+  --color-supporting-soft: rgba(69, 93, 74, 0.12);
+  --color-highlight-soft: rgba(206, 150, 60, 0.09);
+
+  --font-sans: 'Manrope', sans-serif;
+  --font-display: 'Newsreader', serif;
+  --font-mono: 'DM Mono', monospace;
+
+  --control-height: 3.25rem;
+  --transition-fast: 160ms ease;
+  --shadow-card: 0 18px 50px rgba(51, 44, 31, 0.06);
+}

@@ -1,7 +1,11 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
+import { Button } from '#/components/ui/Button'
+import { Card } from '#/components/ui/Card'
+import { TextField } from '#/components/ui/TextField'
 import { getViewer, signOut, startSignIn } from '#/lib/auth'
 import type { ViewerProfile } from '#/lib/viewer'
+import styles from './index.module.css'
 
 export const Route = createFileRoute('/')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -16,6 +20,9 @@ function getErrorMessage(error: unknown) {
     ? error.message
     : 'Something went wrong. Please try again.'
 }
+
+const cx = (...classes: Array<string | undefined>) =>
+  classes.filter(Boolean).join(' ')
 
 function Home() {
   const viewer = Route.useLoaderData()
@@ -69,10 +76,10 @@ function Home() {
   }
 
   return (
-    <main>
-      <nav className="nav" aria-label="Primary navigation">
-        <a className="wordmark" href="/" aria-label="Shellf home">
-          <span className="wordmark-mark" aria-hidden="true">
+    <main className={styles.page}>
+      <nav className={styles.nav} aria-label="Primary navigation">
+        <a className={styles.wordmark} href="/" aria-label="Shellf home">
+          <span className={styles['wordmark-mark']} aria-hidden="true">
             <span />
             <span />
             <span />
@@ -80,7 +87,7 @@ function Home() {
           shellf
         </a>
         <a
-          className="nav-link"
+          className={styles['nav-link']}
           href="https://atproto.com/"
           target="_blank"
           rel="noreferrer"
@@ -90,16 +97,16 @@ function Home() {
         </a>
       </nav>
 
-      <section className="hero">
-        <div className="hero-copy">
-          <p className="eyebrow">
-            <span className="status-dot" /> A place of your own
+      <section className={styles.hero}>
+        <div className={styles['hero-copy']}>
+          <p className={styles.eyebrow}>
+            <span className={styles['status-dot']} /> A place of your own
           </p>
-          <h1>
+          <h1 className={styles.title}>
             Keep what matters.
             <span>Share what’s next.</span>
           </h1>
-          <p className="lede">
+          <p className={styles.lede}>
             Shellf is your small corner of the open social web—portable,
             personal, and connected to the people you already know.
           </p>
@@ -116,40 +123,44 @@ function Home() {
         </div>
 
         <div
-          className="shelf-scene"
+          className={styles['shelf-scene']}
           aria-label="A collection arranged on three shelves"
         >
-          <div className="scene-note note-one">things worth keeping</div>
-          <div className="scene-note note-two">01 — your space</div>
-          <div className="shelf shelf-one">
-            <div className="book rust tall" />
-            <div className="book ink short" />
-            <div className="book ochre medium" />
-            <div className="object arch" />
+          <div className={cx(styles['scene-note'], styles['note-one'])}>
+            things worth keeping
           </div>
-          <div className="shelf shelf-two">
-            <div className="object orb" />
-            <div className="book cream medium" />
-            <div className="book green tall" />
-            <div className="book rust short" />
-            <div className="object frame">✦</div>
+          <div className={cx(styles['scene-note'], styles['note-two'])}>
+            01 — your space
           </div>
-          <div className="shelf shelf-three">
-            <div className="book ink medium" />
-            <div className="book cream tall" />
-            <div className="object small-orb" />
-            <div className="book ochre short" />
-            <div className="book green medium" />
+          <div className={cx(styles.shelf, styles['shelf-one'])}>
+            <div className={cx(styles.book, styles.rust, styles.tall)} />
+            <div className={cx(styles.book, styles.ink, styles.short)} />
+            <div className={cx(styles.book, styles.ochre, styles.medium)} />
+            <div className={cx(styles.object, styles.arch)} />
+          </div>
+          <div className={cx(styles.shelf, styles['shelf-two'])}>
+            <div className={cx(styles.object, styles.orb)} />
+            <div className={cx(styles.book, styles.cream, styles.medium)} />
+            <div className={cx(styles.book, styles.green, styles.tall)} />
+            <div className={cx(styles.book, styles.rust, styles.short)} />
+            <div className={cx(styles.object, styles.frame)}>✦</div>
+          </div>
+          <div className={cx(styles.shelf, styles['shelf-three'])}>
+            <div className={cx(styles.book, styles.ink, styles.medium)} />
+            <div className={cx(styles.book, styles.cream, styles.tall)} />
+            <div className={cx(styles.object, styles['small-orb'])} />
+            <div className={cx(styles.book, styles.ochre, styles.short)} />
+            <div className={cx(styles.book, styles.green, styles.medium)} />
           </div>
         </div>
       </section>
 
-      <section className="principles" aria-labelledby="principles-title">
+      <section className={styles.principles} aria-labelledby="principles-title">
         <div>
-          <p className="section-number">02 — the foundation</p>
+          <p className={styles['section-number']}>02 — the foundation</p>
           <h2 id="principles-title">Open by design.</h2>
         </div>
-        <div className="principle-grid">
+        <div className={styles['principle-grid']}>
           <article>
             <span>01</span>
             <h3>Your identity travels</h3>
@@ -176,7 +187,7 @@ function Home() {
         </div>
       </section>
 
-      <footer>
+      <footer className={styles.footer}>
         <p>Shellf / an AT Protocol app</p>
         <p>TanStack Start · Cloudflare Workers</p>
       </footer>
@@ -205,25 +216,30 @@ function AuthPanel({
 }: AuthPanelProps) {
   if (viewer) {
     return (
-      <div className="auth-card profile-card">
-        <div className="profile-main">
+      <Card className={cx(styles['auth-card'], styles['profile-card'])}>
+        <div className={styles['profile-main']}>
           {viewer.avatar ? (
-            <img src={viewer.avatar} alt="" className="avatar" />
+            <img src={viewer.avatar} alt="" className={styles.avatar} />
           ) : (
-            <div className="avatar avatar-fallback" aria-hidden="true">
+            <div
+              className={cx(styles.avatar, styles['avatar-fallback'])}
+              aria-hidden="true"
+            >
               {viewer.displayName.slice(0, 1).toUpperCase()}
             </div>
           )}
           <div>
-            <p className="signed-in-label">Connected to the atmosphere</p>
+            <p className={styles['signed-in-label']}>
+              Connected to the atmosphere
+            </p>
             <h2>{viewer.displayName}</h2>
-            <p className="handle">@{viewer.handle}</p>
+            <p className={styles.handle}>@{viewer.handle}</p>
           </div>
         </div>
         {viewer.description && (
-          <p className="profile-description">{viewer.description}</p>
+          <p className={styles['profile-description']}>{viewer.description}</p>
         )}
-        <div className="profile-stats">
+        <div className={styles['profile-stats']}>
           <span>
             <strong>{viewer.postsCount.toLocaleString()}</strong> posts
           </span>
@@ -234,7 +250,7 @@ function AuthPanel({
             <strong>{viewer.followsCount.toLocaleString()}</strong> following
           </span>
         </div>
-        <div className="profile-actions">
+        <div className={styles['profile-actions']}>
           <a
             href={`https://bsky.app/profile/${viewer.did}`}
             target="_blank"
@@ -242,28 +258,27 @@ function AuthPanel({
           >
             View profile <ArrowUpRight />
           </a>
-          <button
-            className="text-button"
+          <Button
+            variant="text"
             disabled={isSubmitting}
             onClick={() => void onSignOut()}
             type="button"
           >
             {isSubmitting ? 'Signing out…' : 'Sign out'}
-          </button>
+          </Button>
         </div>
-        {formError && <p className="form-error">{formError}</p>}
-      </div>
+        {formError && <p className={styles['form-error']}>{formError}</p>}
+      </Card>
     )
   }
 
   return (
-    <div className="auth-wrap">
-      <form className="auth-card" onSubmit={onSignIn}>
-        <label htmlFor="handle">Your AT Protocol handle</label>
-        <div className="input-row">
-          <div className="input-shell">
-            <span aria-hidden="true">@</span>
-            <input
+    <div className={styles['auth-wrap']}>
+      <Card className={styles['auth-card']}>
+        <form onSubmit={onSignIn}>
+          <label htmlFor="handle">Your AT Protocol handle</label>
+          <div className={styles['input-row']}>
+            <TextField
               autoCapitalize="none"
               autoComplete="username"
               id="handle"
@@ -273,24 +288,25 @@ function AuthPanel({
               spellCheck={false}
               type="text"
               value={handle}
+              prefix="@"
             />
+            <Button
+              className={styles['submit-button']}
+              disabled={isSubmitting}
+              type="submit"
+            >
+              {isSubmitting ? 'Connecting…' : 'Continue'}
+              {!isSubmitting && <ArrowRight />}
+            </Button>
           </div>
-          <button
-            className="primary-button"
-            disabled={isSubmitting}
-            type="submit"
-          >
-            {isSubmitting ? 'Connecting…' : 'Continue'}
-            {!isSubmitting && <ArrowRight />}
-          </button>
-        </div>
-        {formError && (
-          <p className="form-error" role="alert">
-            {formError}
-          </p>
-        )}
-      </form>
-      <p className="privacy-note">
+          {formError && (
+            <p className={styles['form-error']} role="alert">
+              {formError}
+            </p>
+          )}
+        </form>
+      </Card>
+      <p className={styles['privacy-note']}>
         Sign-in uses OAuth. Shellf resolves your handle through Bluesky’s public
         API and never sees your password.
       </p>
