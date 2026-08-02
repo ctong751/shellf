@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { createOAuthClientMetadata } from '../lib/oauth-metadata'
+import { createOAuthClientMetadata } from '@/lib/auth/oauthMetadata'
 
 export const Route = createFileRoute('/oauth-client-metadata.json')({
   server: {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createOAuthClientMetadata } from './oauth-metadata'
+import { createOAuthClientMetadata } from '@/lib/auth/oauthMetadata'
 
 describe('createOAuthClientMetadata', () => {
   it('declares the profile permission with a literal audience fragment', () => {

@@ -1,6 +1,6 @@
 import type { OAuthClientMetadataInput } from '@atproto/oauth-types'
 
-import { ATPROTO_PROFILE_SCOPE } from './oauth-scopes'
+import { ATPROTO_PROFILE_SCOPE } from '@/lib/auth/oauthScopes'
 
 interface OAuthClientMetadataOptions {
   clientId: string

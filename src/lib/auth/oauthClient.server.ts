@@ -11,8 +11,8 @@ import { eq } from 'drizzle-orm'
 
 import { withDb } from '@/db'
 import { oauthSessions, oauthStates } from '@/db/schema'
-import { createOAuthClientMetadata } from '@/lib/oauth-metadata'
-import { ATPROTO_PROFILE_SCOPE } from '@/lib/oauth-scopes'
+import { createOAuthClientMetadata } from '@/lib/auth/oauthMetadata'
+import { ATPROTO_PROFILE_SCOPE } from '@/lib/auth/oauthScopes'
 
 const stateStore: NodeSavedStateStore = {
   async get(key) {

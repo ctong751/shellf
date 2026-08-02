@@ -17,8 +17,8 @@ export const Route = createFileRoute('/oauth/callback')({
         try {
           const [{ getOAuthClient }, { createSessionCookie }, { Agent }] =
             await Promise.all([
-              import('@/lib/oauth-client.server'),
-              import('@/lib/session.server'),
+              import('@/lib/auth/oauthClient.server'),
+              import('@/lib/auth/session.server'),
               import('@atproto/api'),
             ])
 
