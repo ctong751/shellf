@@ -26,9 +26,7 @@ app currently displays the signed-in user's Bluesky profile.
 ```bash
 npm install
 cp .env.example .env   # then fill in values
-npm run db:up          # start Postgres in Docker
-npm run db:migrate     # apply migrations
-npm run dev
+npm run dev            # start Postgres, apply migrations, and start the app
 ```
 
 Open `http://127.0.0.1:3000`. AT Protocol's loopback OAuth profile requires a
@@ -37,6 +35,10 @@ intentionally binds to `127.0.0.1` rather than `localhost` or a LAN address.
 On loopback origins the app uses AT Protocol's unregistered `http://localhost`
 development client, so no public metadata is needed for local sign-in.
 
+Postgres stays running across app restarts. Stop it with `npm run db:down`. To
+start only the app process, such as when using an external database, run
+`npm run dev:app`.
+
 ## Database
 
 Vanilla Postgres only — no vendor extensions or serverless drivers, so hosting
@@ -44,6 +46,7 @@ stays a connection-string swap. Schema lives in `src/db/schema.ts`; migrations
 in `drizzle/`.
 
 ```bash
+npm run db:up          # start Postgres and wait until it is healthy
 npm run db:generate    # create a migration from schema changes
 npm run db:migrate     # apply pending migrations
 npm run db:studio      # browse data

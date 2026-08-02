@@ -20,7 +20,8 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev": "vite dev --host 127.0.0.1 --port 3000",
+    "dev": "npm run db:up && npm run db:migrate && npm run dev:app",
+    "dev:app": "vite dev --host 127.0.0.1 --port 3000",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -31,7 +32,7 @@
     "preview": "npm run build && vite preview --host 127.0.0.1",
     "deploy": "npm run check && npm run build && wrangler deploy",
     "deploy:dry-run": "npm run check && npm run build && wrangler deploy --dry-run",
-    "db:up": "docker compose up -d db",
+    "db:up": "docker compose up --detach --wait db",
     "db:down": "docker compose down",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",

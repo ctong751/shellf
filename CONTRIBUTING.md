@@ -7,9 +7,11 @@ Thanks for helping improve Shellf.
 1. Install Node.js 22 or newer and Docker.
 2. Run `npm install`.
 3. Copy `.env.example` to `.env` and fill in values.
-4. Start Postgres with `npm run db:up` and apply migrations with `npm run db:migrate`.
-5. Start the app with `npm run dev`.
-6. Open `http://127.0.0.1:3000`.
+4. Run `npm run dev` to start Postgres, apply migrations, and start the app.
+5. Open `http://127.0.0.1:3000`.
+
+Postgres stays running when the app stops. Run `npm run db:down` when you no
+longer need it. Use `npm run dev:app` to start only the app process.
 
 Before opening a pull request, run:
 
