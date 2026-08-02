@@ -3,6 +3,5 @@ coverage
 node_modules
 src/routeTree.gen.ts
 worker-configuration.d.ts
-oauth-worker-configuration.d.ts
 package-lock.json
 drizzle

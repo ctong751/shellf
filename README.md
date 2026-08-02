@@ -99,15 +99,6 @@ instance reachable from Workers. Production database hosting is deliberately
 undecided; until it exists, deploys serve the landing page but sign-in will
 fail.
 
-## Metadata preview Worker
-
-`wrangler.oauth.jsonc` deploys a metadata-only Worker
-(`src/oauth-preview-worker.ts`) that serves client metadata from a public
-origin for HTTPS previews on private hosts. The app-side wiring for pointing
-the server OAuth client at an external client ID was removed together with the
-browser client; reintroduce a client-ID override in
-`src/lib/oauth-client.server.ts` if this flow is needed again.
-
 ## OAuth permissions
 
 Shellf requests only the base AT Protocol identity scope and the Bluesky
@@ -132,9 +123,7 @@ src/routes/oauth.callback.ts           OAuth callback route
 src/routes/oauth-client-metadata[.]json.ts  Production metadata endpoint
 src/db/                                Drizzle client and schema
 drizzle/                               SQL migrations
-src/oauth-preview-worker.ts            Metadata-only preview Worker
 wrangler.jsonc                         Main application Worker
-wrangler.oauth.jsonc                   Preview metadata Worker
 ```
 
 ## Contributing and security

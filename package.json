@@ -31,15 +31,13 @@
     "preview": "npm run build && vite preview --host 127.0.0.1",
     "deploy": "npm run check && npm run build && wrangler deploy",
     "deploy:dry-run": "npm run check && npm run build && wrangler deploy --dry-run",
-    "deploy:oauth-preview": "wrangler deploy --config wrangler.oauth.jsonc --env preview",
-    "deploy:oauth-preview:dry-run": "wrangler deploy --config wrangler.oauth.jsonc --env preview --dry-run",
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "cf-typegen": "wrangler types && wrangler types --config wrangler.oauth.jsonc --env preview --env-interface OAuthPreviewEnv --include-runtime false --strict-vars false oauth-worker-configuration.d.ts",
-    "cf-typegen:check": "wrangler types --check && wrangler types --config wrangler.oauth.jsonc --env preview --env-interface OAuthPreviewEnv --include-runtime false --strict-vars false --check oauth-worker-configuration.d.ts"
+    "cf-typegen": "wrangler types",
+    "cf-typegen:check": "wrangler types --check"
   },
   "dependencies": {
     "@atproto/api": "^0.20.36",

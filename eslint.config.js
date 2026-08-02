@@ -8,7 +8,6 @@ export default tseslint.config(
       'coverage/**',
       'dist/**',
       'node_modules/**',
-      'oauth-worker-configuration.d.ts',
       'src/routeTree.gen.ts',
       'worker-configuration.d.ts',
     ],
