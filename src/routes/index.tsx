@@ -1,17 +1,23 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 import { Button } from '#/components/ui/Button'
 import { Card } from '#/components/ui/Card'
 import { TextField } from '#/components/ui/TextField'
-import { getViewer, signOut, startSignIn } from '#/lib/auth'
-import type { ViewerProfile } from '#/lib/viewer'
+import { getViewer, startSignIn } from '#/lib/auth'
 import styles from './index.module.css'
 
 export const Route = createFileRoute('/')({
   validateSearch: (search: Record<string, unknown>) => ({
     error: typeof search.error === 'string' ? search.error : undefined,
   }),
-  loader: () => getViewer(),
+  loader: async () => {
+    const viewer = await getViewer()
+    if (viewer) {
+      // TanStack Router redirects are control-flow objects, not Error instances.
+      // eslint-disable-next-line @typescript-eslint/only-throw-error
+      throw redirect({ to: '/home' })
+    }
+  },
   component: Home,
 })
 
@@ -25,9 +31,7 @@ const cx = (...classes: Array<string | undefined>) =>
   classes.filter(Boolean).join(' ')
 
 function Home() {
-  const viewer = Route.useLoaderData()
   const { error } = Route.useSearch()
-  const router = useRouter()
   const [handle, setHandle] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string>()
@@ -59,20 +63,6 @@ function Home() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     void beginSignIn(handle)
-  }
-
-  async function handleSignOut() {
-    setIsSubmitting(true)
-    setFormError(undefined)
-
-    try {
-      await signOut()
-      await router.invalidate()
-    } catch (error) {
-      setFormError(getErrorMessage(error))
-    } finally {
-      setIsSubmitting(false)
-    }
   }
 
   return (
@@ -112,13 +102,11 @@ function Home() {
           </p>
 
           <AuthPanel
-            viewer={viewer}
             formError={formError ?? searchError}
             handle={handle}
             isSubmitting={isSubmitting}
             onHandleChange={setHandle}
             onSignIn={handleSubmit}
-            onSignOut={handleSignOut}
           />
         </div>
 
@@ -196,82 +184,20 @@ function Home() {
 }
 
 interface AuthPanelProps {
-  viewer: ViewerProfile | null
   formError?: string
   handle: string
   isSubmitting: boolean
   onHandleChange: (value: string) => void
   onSignIn: (event: FormEvent<HTMLFormElement>) => void
-  onSignOut: () => Promise<void>
 }
 
 function AuthPanel({
-  viewer,
   formError,
   handle,
   isSubmitting,
   onHandleChange,
   onSignIn,
-  onSignOut,
 }: AuthPanelProps) {
-  if (viewer) {
-    return (
-      <Card className={cx(styles['auth-card'], styles['profile-card'])}>
-        <div className={styles['profile-main']}>
-          {viewer.avatar ? (
-            <img src={viewer.avatar} alt="" className={styles.avatar} />
-          ) : (
-            <div
-              className={cx(styles.avatar, styles['avatar-fallback'])}
-              aria-hidden="true"
-            >
-              {viewer.displayName.slice(0, 1).toUpperCase()}
-            </div>
-          )}
-          <div>
-            <p className={styles['signed-in-label']}>
-              Connected to the atmosphere
-            </p>
-            <h2>{viewer.displayName}</h2>
-            <p className={styles.handle}>@{viewer.handle}</p>
-          </div>
-        </div>
-        {viewer.description && (
-          <p className={styles['profile-description']}>{viewer.description}</p>
-        )}
-        <div className={styles['profile-stats']}>
-          <span>
-            <strong>{viewer.postsCount.toLocaleString()}</strong> posts
-          </span>
-          <span>
-            <strong>{viewer.followersCount.toLocaleString()}</strong> followers
-          </span>
-          <span>
-            <strong>{viewer.followsCount.toLocaleString()}</strong> following
-          </span>
-        </div>
-        <div className={styles['profile-actions']}>
-          <a
-            href={`https://bsky.app/profile/${viewer.did}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            View profile <ArrowUpRight />
-          </a>
-          <Button
-            variant="text"
-            disabled={isSubmitting}
-            onClick={() => void onSignOut()}
-            type="button"
-          >
-            {isSubmitting ? 'Signing out…' : 'Sign out'}
-          </Button>
-        </div>
-        {formError && <p className={styles['form-error']}>{formError}</p>}
-      </Card>
-    )
-  }
-
   return (
     <div className={styles['auth-wrap']}>
       <Card className={styles['auth-card']}>

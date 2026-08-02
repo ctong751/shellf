@@ -47,7 +47,7 @@ export const Route = createFileRoute('/oauth/callback')({
             did,
             url.protocol === 'https:',
           )
-          return redirect('/', cookie)
+          return redirect('/home', cookie)
         } catch (error) {
           console.error('OAuth callback failed', error)
           return redirect('/?error=signin_failed')

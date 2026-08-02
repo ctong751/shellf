@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as OauthClientMetadataDotjsonRouteImport } from './routes/oauth-client-metadata[.]json'
 import { Route as OauthCallbackRouteImport } from './routes/oauth.callback'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OauthClientMetadataDotjsonRoute =
@@ -32,30 +38,39 @@ const OauthCallbackRoute = OauthCallbackRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/home': typeof HomeRoute
   '/oauth-client-metadata.json': typeof OauthClientMetadataDotjsonRoute
   '/oauth/callback': typeof OauthCallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/home': typeof HomeRoute
   '/oauth-client-metadata.json': typeof OauthClientMetadataDotjsonRoute
   '/oauth/callback': typeof OauthCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/home': typeof HomeRoute
   '/oauth-client-metadata.json': typeof OauthClientMetadataDotjsonRoute
   '/oauth/callback': typeof OauthCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/oauth-client-metadata.json' | '/oauth/callback'
+  fullPaths: '/' | '/home' | '/oauth-client-metadata.json' | '/oauth/callback'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/oauth-client-metadata.json' | '/oauth/callback'
-  id: '__root__' | '/' | '/oauth-client-metadata.json' | '/oauth/callback'
+  to: '/' | '/home' | '/oauth-client-metadata.json' | '/oauth/callback'
+  id:
+    | '__root__'
+    | '/'
+    | '/home'
+    | '/oauth-client-metadata.json'
+    | '/oauth/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HomeRoute: typeof HomeRoute
   OauthClientMetadataDotjsonRoute: typeof OauthClientMetadataDotjsonRoute
   OauthCallbackRoute: typeof OauthCallbackRoute
 }
@@ -67,6 +82,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/oauth-client-metadata.json': {
@@ -88,6 +110,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HomeRoute: HomeRoute,
   OauthClientMetadataDotjsonRoute: OauthClientMetadataDotjsonRoute,
   OauthCallbackRoute: OauthCallbackRoute,
 }
