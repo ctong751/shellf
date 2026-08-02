@@ -17,239 +17,17 @@ import {
 } from '@/components/ui/empty'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getViewer, signOut } from '@/lib/auth'
+import { fallbackHomeMedia } from '@/lib/homeMedia/fallback'
+import { getHomeMedia } from '@/lib/homeMedia/getHomeMedia'
+import {
+  type Accent,
+  type RecentItem,
+  type SavedItem,
+  type WatchingItem,
+} from '@/lib/homeMedia/types'
 import { cn } from '@/lib/utils'
 
-type Accent = 'amber' | 'blue' | 'green' | 'ochre' | 'plum' | 'rust' | 'slate'
 type HomeTab = 'watch-list' | 'upcoming'
-
-interface Episode {
-  description: string
-  number: number
-  title: string
-}
-
-interface WatchingSeries {
-  accent: Accent
-  currentEpisode: Episode
-  id: string
-  kind: 'series'
-  nextEpisode?: Episode
-  season: number
-  showDescription: string
-  title: string
-  totalEpisodes: number
-  watchedEpisodes: number
-}
-
-interface WatchingMovie {
-  accent: Accent
-  description: string
-  id: string
-  kind: 'movie'
-  runtime: string
-  title: string
-}
-
-type WatchingItem = WatchingMovie | WatchingSeries
-
-interface RecentItem {
-  accent: Accent
-  id: string
-  meta: string
-  sourceItem?: WatchingItem
-  time: string
-  title: string
-}
-
-interface SavedItem {
-  accent: Accent
-  availability: string
-  description: string
-  id: string
-  runtime: string
-  title: string
-}
-
-const initialWatchingItems: WatchingItem[] = [
-  {
-    accent: 'green',
-    currentEpisode: {
-      description:
-        'The team is sent on an unsettling winter retreat where old loyalties and new suspicions begin to surface.',
-      number: 4,
-      title: 'Woe’s Hollow',
-    },
-    id: 'severance',
-    kind: 'series',
-    nextEpisode: {
-      description:
-        'Tensions follow the team back to Lumon as the consequences of the retreat begin to settle in.',
-      number: 5,
-      title: 'Trojan’s Horse',
-    },
-    season: 2,
-    showDescription:
-      'Office workers whose memories have been surgically divided uncover the truth about their jobs and themselves.',
-    title: 'Severance',
-    totalEpisodes: 10,
-    watchedEpisodes: 3,
-  },
-  {
-    accent: 'blue',
-    currentEpisode: {
-      description:
-        'The restaurant pushes through another demanding service while the team confronts what they want from its future.',
-      number: 7,
-      title: 'Legacy',
-    },
-    id: 'the-bear',
-    kind: 'series',
-    nextEpisode: {
-      description:
-        'The staff weighs the cost of perfection as pressure builds both inside and outside the kitchen.',
-      number: 8,
-      title: 'Ice Chips',
-    },
-    season: 3,
-    showDescription:
-      'A young chef returns home to run his family sandwich shop and transform it alongside a determined crew.',
-    title: 'The Bear',
-    totalEpisodes: 10,
-    watchedEpisodes: 6,
-  },
-  {
-    accent: 'ochre',
-    currentEpisode: {
-      description:
-        'A dangerous new assignment puts the team back in the field while old mistakes threaten to catch up with them.',
-      number: 3,
-      title: 'Penny for Your Thoughts',
-    },
-    id: 'slow-horses',
-    kind: 'series',
-    nextEpisode: {
-      description:
-        'River closes in on an answer while the rest of Slough House tries to stay ahead of a growing threat.',
-      number: 4,
-      title: 'Returns',
-    },
-    season: 4,
-    showDescription:
-      'A dysfunctional team of British intelligence agents navigates the espionage world’s smoke and mirrors.',
-    title: 'Slow Horses',
-    totalEpisodes: 6,
-    watchedEpisodes: 2,
-  },
-  {
-    accent: 'slate',
-    currentEpisode: {
-      description:
-        'Juliette searches for a way forward as new evidence challenges what everyone believes about the silo.',
-      number: 5,
-      title: 'Descent',
-    },
-    id: 'silo',
-    kind: 'series',
-    nextEpisode: {
-      description:
-        'A fragile alliance offers Juliette a path forward, while unrest deepens among those left behind.',
-      number: 6,
-      title: 'Barricades',
-    },
-    season: 2,
-    showDescription:
-      'Thousands live deep underground under rules they believe protect them from the ruined world outside.',
-    title: 'Silo',
-    totalEpisodes: 10,
-    watchedEpisodes: 4,
-  },
-  {
-    accent: 'plum',
-    currentEpisode: {
-      description:
-        'A routine school day becomes anything but routine when competing plans throw the teachers into chaos.',
-      number: 6,
-      title: 'The Deli',
-    },
-    id: 'abbott-elementary',
-    kind: 'series',
-    nextEpisode: {
-      description:
-        'The teachers rally around a new school challenge while Janine tries to keep an ambitious plan on track.',
-      number: 7,
-      title: 'Winter Break',
-    },
-    season: 4,
-    showDescription:
-      'A group of dedicated teachers works to help their students succeed at an underfunded Philadelphia school.',
-    title: 'Abbott Elementary',
-    totalEpisodes: 22,
-    watchedEpisodes: 5,
-  },
-]
-
-const initialRecentItems: RecentItem[] = [
-  {
-    accent: 'green',
-    id: 'recent-severance',
-    meta: 'S2 E3 · Who Is Alive?',
-    time: '2 hours ago',
-    title: 'Severance',
-  },
-  {
-    accent: 'ochre',
-    id: 'recent-shogun',
-    meta: 'S1 E10 · A Dream of a Dream',
-    time: 'Yesterday',
-    title: 'Shōgun',
-  },
-  {
-    accent: 'rust',
-    id: 'recent-dune',
-    meta: 'Movie · 2h 46m',
-    time: '3 days ago',
-    title: 'Dune: Part Two',
-  },
-]
-
-const initialSavedItems: SavedItem[] = [
-  {
-    accent: 'blue',
-    availability: 'Streaming',
-    description:
-      'Two childhood friends reunite decades after their lives take them in different directions.',
-    id: 'past-lives',
-    runtime: '1h 46m',
-    title: 'Past Lives',
-  },
-  {
-    accent: 'plum',
-    availability: 'In theaters',
-    description:
-      'A young woman’s whirlwind romance collides with the expectations of a powerful family.',
-    id: 'anora',
-    runtime: '2h 19m',
-    title: 'Anora',
-  },
-  {
-    accent: 'amber',
-    availability: 'Streaming',
-    description:
-      'A shipwrecked robot must learn to survive—and connect—with the animals of a remote island.',
-    id: 'wild-robot',
-    runtime: '1h 42m',
-    title: 'The Wild Robot',
-  },
-  {
-    accent: 'slate',
-    availability: 'Rent or buy',
-    description:
-      'Three tennis players find old rivalries resurfacing on and off the court.',
-    id: 'challengers',
-    runtime: '2h 11m',
-    title: 'Challengers',
-  },
-]
 
 const getErrorMessage = (error: unknown) =>
   error instanceof Error
@@ -267,15 +45,21 @@ const posterAccentClasses: Record<Accent, string> = {
 }
 
 const Home = () => {
-  const viewer = Route.useLoaderData()
+  const { media, viewer } = Route.useLoaderData()
   const router = useRouter()
   const queueRef = useRef<HTMLDivElement>(null)
   const [activeTab, setActiveTab] = useState<HomeTab>('watch-list')
   const [isSigningOut, setIsSigningOut] = useState(false)
-  const [recentItems, setRecentItems] = useState(initialRecentItems)
-  const [savedItems, setSavedItems] = useState(initialSavedItems)
+  const [recentItems, setRecentItems] = useState(
+    media?.recentItems ?? fallbackHomeMedia.recentItems,
+  )
+  const [savedItems, setSavedItems] = useState(
+    media?.savedItems ?? fallbackHomeMedia.savedItems,
+  )
   const [signOutError, setSignOutError] = useState<string>()
-  const [watchingItems, setWatchingItems] = useState(initialWatchingItems)
+  const [watchingItems, setWatchingItems] = useState(
+    media?.watchingItems ?? fallbackHomeMedia.watchingItems,
+  )
 
   const handleSignOut = async () => {
     setIsSigningOut(true)
@@ -371,6 +155,7 @@ const Home = () => {
         description: savedItem.description,
         id: savedItem.id,
         kind: 'movie',
+        posterUrl: savedItem.posterUrl,
         runtime: savedItem.runtime,
         title: savedItem.title,
       },
@@ -548,8 +333,26 @@ const Home = () => {
         </Tabs>
       </section>
 
-      <footer className="mt-14 flex items-center justify-between border-t border-border pt-6 pb-8 font-mono text-[0.59rem] tracking-[0.06em] text-muted-foreground uppercase [&_p]:m-0">
+      <footer className="mt-14 flex items-center justify-between gap-8 border-t border-border pt-6 pb-8 font-mono text-[0.59rem] tracking-[0.06em] text-muted-foreground uppercase max-[700px]:items-start max-[700px]:flex-col [&_p]:m-0">
         <p>Shellf / your place for what’s next</p>
+        <div className="flex max-w-[560px] items-center justify-end gap-4 normal-case max-[700px]:justify-start">
+          <a
+            className="shrink-0"
+            href="https://www.themoviedb.org"
+            rel="noreferrer"
+            target="_blank"
+          >
+            <img
+              alt="TMDB"
+              className="h-7 w-auto"
+              src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg"
+            />
+          </a>
+          <p>
+            This product uses the TMDB API but is not endorsed or certified by
+            TMDB.
+          </p>
+        </div>
       </footer>
     </main>
   )
@@ -563,7 +366,8 @@ export const Route = createFileRoute('/home')({
       // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw redirect({ to: '/', search: { error: undefined } })
     }
-    return viewer
+    const media = await getHomeMedia()
+    return { media, viewer }
   },
   component: Home,
 })
@@ -622,7 +426,11 @@ const ProgressCard = ({ item, onMarkWatched }: ProgressCardProps) => {
 
   return (
     <article className="grid min-h-[242px] flex-[0_0_min(380px,calc(100vw-3rem))] snap-start grid-cols-[minmax(112px,0.72fr)_minmax(0,1.28fr)] border border-border bg-surface shadow-card max-[700px]:basis-[min(350px,calc(100vw-3rem))] max-[700px]:grid-cols-[106px_minmax(0,1fr)] max-[430px]:basis-[calc(100vw-3rem)]">
-      <Poster accent={item.accent} title={item.title} />
+      <Poster
+        accent={item.accent}
+        posterUrl={item.posterUrl}
+        title={item.title}
+      />
       <div className="flex min-w-0 flex-col p-[1.2rem] max-[700px]:p-4">
         <span className="font-mono text-[0.56rem] tracking-[0.09em] text-supporting uppercase">
           {kicker}
@@ -694,6 +502,7 @@ const RecentCard = ({ item, onUndo }: RecentCardProps) => (
     <Poster
       accent={item.accent}
       className="min-h-[76px] [&>span]:hidden"
+      posterUrl={item.posterUrl}
       title={item.title}
     />
     <div>
@@ -723,6 +532,7 @@ const SavedCard = ({ item, onStartWatching }: SavedCardProps) => (
     <Poster
       accent={item.accent}
       className="min-h-[220px] max-[700px]:min-h-[190px] max-[430px]:min-h-[250px]"
+      posterUrl={item.posterUrl}
       title={item.title}
     />
     <div className="py-[0.8rem]">
@@ -752,10 +562,11 @@ const SavedCard = ({ item, onStartWatching }: SavedCardProps) => (
 interface PosterProps {
   accent: Accent
   className?: string
+  posterUrl?: string
   title: string
 }
 
-const Poster = ({ accent, className, title }: PosterProps) => (
+const Poster = ({ accent, className, posterUrl, title }: PosterProps) => (
   <div
     className={cn(
       "relative isolate grid min-h-[180px] items-end justify-items-start overflow-hidden bg-supporting before:absolute before:inset-[12%] before:-z-10 before:rounded-[50%_50%_7%_7%] before:border before:border-[rgba(255,255,255,0.36)] before:content-[''] after:absolute after:right-[-50%] after:-bottom-[12%] after:-z-10 after:h-[45%] after:w-[150%] after:-rotate-[18deg] after:bg-[rgba(244,240,230,0.15)] after:content-[''] [&>span]:p-4 [&>span]:font-display [&>span]:text-[1.15rem] [&>span]:tracking-[-0.025em] [&>span]:text-[rgba(255,255,255,0.94)]",
@@ -764,7 +575,16 @@ const Poster = ({ accent, className, title }: PosterProps) => (
     )}
     aria-hidden="true"
   >
-    <span>{title}</span>
+    {posterUrl ? (
+      <img
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+        loading="lazy"
+        src={posterUrl}
+      />
+    ) : (
+      <span>{title}</span>
+    )}
   </div>
 )
 
