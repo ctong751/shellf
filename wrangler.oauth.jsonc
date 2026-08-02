@@ -14,7 +14,7 @@
       "name": "shellf-oauth-preview",
       "workers_dev": true,
       "vars": {
-        "OAUTH_REDIRECT_URI": "http://127.0.0.1:3000/",
+        "OAUTH_REDIRECT_URI": "http://127.0.0.1:3000/oauth/callback",
       },
     },
   },

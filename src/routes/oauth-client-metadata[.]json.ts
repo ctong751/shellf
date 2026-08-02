@@ -14,7 +14,7 @@ export const Route = createFileRoute('/oauth-client-metadata.json')({
             clientId,
             clientName: 'Shellf',
             clientUri: `${origin}/`,
-            redirectUris: [`${origin}/`],
+            redirectUris: [`${origin}/oauth/callback`],
           }),
           {
             headers: {

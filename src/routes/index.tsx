@@ -1,19 +1,15 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { createClientOnlyFn } from '@tanstack/react-start'
-import { useEffect, useState, type FormEvent } from 'react'
-import type { ViewerProfile } from '#/lib/atproto.client'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { useState, type FormEvent } from 'react'
+import { getViewer, signOut, startSignIn } from '#/lib/auth'
+import type { ViewerProfile } from '#/lib/viewer'
 
-export const Route = createFileRoute('/')({ component: Home })
-
-const getAtprotoClient = createClientOnlyFn(
-  () => import('#/lib/atproto.client'),
-)
-
-type AuthState =
-  | { status: 'loading' }
-  | { status: 'signed-out' }
-  | { status: 'signed-in'; profile: ViewerProfile }
-  | { status: 'error'; message: string }
+export const Route = createFileRoute('/')({
+  validateSearch: (search: Record<string, unknown>) => ({
+    error: typeof search.error === 'string' ? search.error : undefined,
+  }),
+  loader: () => getViewer(),
+  component: Home,
+})
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error
@@ -22,31 +18,17 @@ function getErrorMessage(error: unknown) {
 }
 
 function Home() {
-  const [auth, setAuth] = useState<AuthState>({ status: 'loading' })
+  const viewer = Route.useLoaderData()
+  const { error } = Route.useSearch()
+  const router = useRouter()
   const [handle, setHandle] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string>()
 
-  useEffect(() => {
-    let active = true
-
-    void getAtprotoClient()
-      .then(({ initializeAtproto }) => initializeAtproto())
-      .then((profile) => {
-        if (!active) return
-        setAuth(
-          profile ? { status: 'signed-in', profile } : { status: 'signed-out' },
-        )
-      })
-      .catch((error: unknown) => {
-        if (!active) return
-        setAuth({ status: 'error', message: getErrorMessage(error) })
-      })
-
-    return () => {
-      active = false
-    }
-  }, [])
+  const searchError =
+    error === 'signin_failed'
+      ? 'Sign-in didn’t complete. Please try again.'
+      : undefined
 
   async function beginSignIn(identifier: string) {
     const normalized = identifier.trim().replace(/^@/, '')
@@ -59,8 +41,8 @@ function Home() {
     setFormError(undefined)
 
     try {
-      const { signIn } = await getAtprotoClient()
-      await signIn(normalized)
+      const { redirectUrl } = await startSignIn({ data: normalized })
+      window.location.assign(redirectUrl)
     } catch (error) {
       setFormError(getErrorMessage(error))
       setIsSubmitting(false)
@@ -72,14 +54,13 @@ function Home() {
     void beginSignIn(handle)
   }
 
-  async function handleSignOut(profile: ViewerProfile) {
+  async function handleSignOut() {
     setIsSubmitting(true)
     setFormError(undefined)
 
     try {
-      const { signOut } = await getAtprotoClient()
-      await signOut(profile.did)
-      setAuth({ status: 'signed-out' })
+      await signOut()
+      await router.invalidate()
     } catch (error) {
       setFormError(getErrorMessage(error))
     } finally {
@@ -124,8 +105,8 @@ function Home() {
           </p>
 
           <AuthPanel
-            auth={auth}
-            formError={formError}
+            viewer={viewer}
+            formError={formError ?? searchError}
             handle={handle}
             isSubmitting={isSubmitting}
             onHandleChange={setHandle}
@@ -204,17 +185,17 @@ function Home() {
 }
 
 interface AuthPanelProps {
-  auth: AuthState
+  viewer: ViewerProfile | null
   formError?: string
   handle: string
   isSubmitting: boolean
   onHandleChange: (value: string) => void
   onSignIn: (event: FormEvent<HTMLFormElement>) => void
-  onSignOut: (profile: ViewerProfile) => Promise<void>
+  onSignOut: () => Promise<void>
 }
 
 function AuthPanel({
-  auth,
+  viewer,
   formError,
   handle,
   isSubmitting,
@@ -222,51 +203,40 @@ function AuthPanel({
   onSignIn,
   onSignOut,
 }: AuthPanelProps) {
-  if (auth.status === 'loading') {
-    return (
-      <div className="auth-card loading-card" role="status">
-        <span className="loader" />
-        Checking for your AT Protocol session…
-      </div>
-    )
-  }
-
-  if (auth.status === 'signed-in') {
-    const { profile } = auth
-
+  if (viewer) {
     return (
       <div className="auth-card profile-card">
         <div className="profile-main">
-          {profile.avatar ? (
-            <img src={profile.avatar} alt="" className="avatar" />
+          {viewer.avatar ? (
+            <img src={viewer.avatar} alt="" className="avatar" />
           ) : (
             <div className="avatar avatar-fallback" aria-hidden="true">
-              {profile.displayName.slice(0, 1).toUpperCase()}
+              {viewer.displayName.slice(0, 1).toUpperCase()}
             </div>
           )}
           <div>
             <p className="signed-in-label">Connected to the atmosphere</p>
-            <h2>{profile.displayName}</h2>
-            <p className="handle">@{profile.handle}</p>
+            <h2>{viewer.displayName}</h2>
+            <p className="handle">@{viewer.handle}</p>
           </div>
         </div>
-        {profile.description && (
-          <p className="profile-description">{profile.description}</p>
+        {viewer.description && (
+          <p className="profile-description">{viewer.description}</p>
         )}
         <div className="profile-stats">
           <span>
-            <strong>{profile.postsCount.toLocaleString()}</strong> posts
+            <strong>{viewer.postsCount.toLocaleString()}</strong> posts
           </span>
           <span>
-            <strong>{profile.followersCount.toLocaleString()}</strong> followers
+            <strong>{viewer.followersCount.toLocaleString()}</strong> followers
           </span>
           <span>
-            <strong>{profile.followsCount.toLocaleString()}</strong> following
+            <strong>{viewer.followsCount.toLocaleString()}</strong> following
           </span>
         </div>
         <div className="profile-actions">
           <a
-            href={`https://bsky.app/profile/${profile.did}`}
+            href={`https://bsky.app/profile/${viewer.did}`}
             target="_blank"
             rel="noreferrer"
           >
@@ -275,7 +245,7 @@ function AuthPanel({
           <button
             className="text-button"
             disabled={isSubmitting}
-            onClick={() => void onSignOut(profile)}
+            onClick={() => void onSignOut()}
             type="button"
           >
             {isSubmitting ? 'Signing out…' : 'Sign out'}
@@ -314,15 +284,15 @@ function AuthPanel({
             {!isSubmitting && <ArrowRight />}
           </button>
         </div>
-        {(formError || auth.status === 'error') && (
+        {formError && (
           <p className="form-error" role="alert">
-            {formError || (auth.status === 'error' ? auth.message : '')}
+            {formError}
           </p>
         )}
       </form>
       <p className="privacy-note">
-        Sign-in uses OAuth. For handle discovery, bsky.social receives your
-        handle and IP address. Shellf never sees your password.
+        Sign-in uses OAuth. Shellf resolves your handle through Bluesky’s public
+        API and never sees your password.
       </p>
     </div>
   )
