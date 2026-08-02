@@ -17,8 +17,8 @@ export const Route = createFileRoute('/oauth/callback')({
         try {
           const [{ getOAuthClient }, { createSessionCookie }, { Agent }] =
             await Promise.all([
-              import('#/lib/oauth-client.server'),
-              import('#/lib/session.server'),
+              import('@/lib/oauth-client.server'),
+              import('@/lib/session.server'),
               import('@atproto/api'),
             ])
 
@@ -30,8 +30,8 @@ export const Route = createFileRoute('/oauth/callback')({
           const { data: profile } = await agent.getProfile({ actor: did })
 
           const [{ withDb }, { users }] = await Promise.all([
-            import('#/db'),
-            import('#/db/schema'),
+            import('@/db'),
+            import('@/db/schema'),
           ])
           await withDb((db) =>
             db

@@ -6,18 +6,18 @@ import {
   CheckIcon,
 } from 'lucide-react'
 import { useRef, useState, type ReactNode } from 'react'
-import { Button } from '#/components/ui/Button'
-import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
+import { Button } from '@/components/ui/Button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from '#/components/ui/empty'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '#/components/ui/tabs'
-import { getViewer, signOut } from '#/lib/auth'
-import { cn } from '#/lib/utils'
+} from '@/components/ui/empty'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { getViewer, signOut } from '@/lib/auth'
+import { cn } from '@/lib/utils'
 
 type Accent = 'amber' | 'blue' | 'green' | 'ochre' | 'plum' | 'rust' | 'slate'
 type HomeTab = 'watch-list' | 'upcoming'

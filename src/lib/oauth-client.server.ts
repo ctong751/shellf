@@ -9,10 +9,10 @@ import {
 } from '@atproto/oauth-client-node'
 import { eq } from 'drizzle-orm'
 
-import { withDb } from '#/db'
-import { oauthSessions, oauthStates } from '#/db/schema'
-import { createOAuthClientMetadata } from '#/lib/oauth-metadata'
-import { ATPROTO_PROFILE_SCOPE } from '#/lib/oauth-scopes'
+import { withDb } from '@/db'
+import { oauthSessions, oauthStates } from '@/db/schema'
+import { createOAuthClientMetadata } from '@/lib/oauth-metadata'
+import { ATPROTO_PROFILE_SCOPE } from '@/lib/oauth-scopes'
 
 const stateStore: NodeSavedStateStore = {
   async get(key) {

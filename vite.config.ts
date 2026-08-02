@@ -2,6 +2,7 @@ import { cloudflare } from '@cloudflare/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 
 const hmrHost = process.env.VITE_HMR_HOST
@@ -11,6 +12,11 @@ const hmrClientPort = Number.parseInt(
 )
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
   environments: {
     ssr: {
       define: {

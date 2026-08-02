@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 
-import type { ViewerProfile } from '#/lib/viewer'
+import type { ViewerProfile } from '@/lib/viewer'
 
 // Server-only modules are imported dynamically inside handlers so nothing
 // database- or Node-flavored can end up in the client bundle.
@@ -18,7 +18,7 @@ export const startSignIn = createServerFn({ method: 'POST' })
   })
   .handler(async ({ data: handle }) => {
     const [{ getOAuthClient }, { getRequest }] = await Promise.all([
-      import('#/lib/oauth-client.server'),
+      import('@/lib/oauth-client.server'),
       import('@tanstack/react-start/server'),
     ])
 
@@ -31,7 +31,7 @@ export const startSignIn = createServerFn({ method: 'POST' })
 
 export const getViewer = createServerFn({ method: 'GET' }).handler(
   async (): Promise<ViewerProfile | null> => {
-    const { getSessionUser } = await import('#/lib/session.server')
+    const { getSessionUser } = await import('@/lib/session.server')
     const user = await getSessionUser()
     if (!user) {
       return null
@@ -49,7 +49,7 @@ export const getViewer = createServerFn({ method: 'GET' }).handler(
     try {
       const [{ getOAuthClient }, { getRequest }, { Agent }] = await Promise.all(
         [
-          import('#/lib/oauth-client.server'),
+          import('@/lib/oauth-client.server'),
           import('@tanstack/react-start/server'),
           import('@atproto/api'),
         ],
@@ -83,8 +83,8 @@ export const signOut = createServerFn({ method: 'POST' }).handler(async () => {
     { getOAuthClient },
     { getRequest },
   ] = await Promise.all([
-    import('#/lib/session.server'),
-    import('#/lib/oauth-client.server'),
+    import('@/lib/session.server'),
+    import('@/lib/oauth-client.server'),
     import('@tanstack/react-start/server'),
   ])
 

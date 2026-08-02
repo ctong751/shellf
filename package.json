@@ -18,9 +18,6 @@
     "node": ">=22",
     "pnpm": ">=11 <12"
   },
-  "imports": {
-    "#/*": "./src/*"
-  },
   "scripts": {
     "dev": "pnpm run db:up && pnpm run db:migrate && pnpm run dev:app",
     "dev:app": "vite dev --host 127.0.0.1 --port 3000",

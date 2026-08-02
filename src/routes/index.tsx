@@ -1,22 +1,22 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { ArrowRightIcon, ArrowUpRightIcon } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
-import { Button } from '#/components/ui/Button'
-import { Card, CardContent } from '#/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Card, CardContent } from '@/components/ui/Card'
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from '#/components/ui/field'
+} from '@/components/ui/field'
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
   InputGroupText,
-} from '#/components/ui/input-group'
-import { getViewer, startSignIn } from '#/lib/auth'
-import { cn } from '#/lib/utils'
+} from '@/components/ui/input-group'
+import { getViewer, startSignIn } from '@/lib/auth'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/')({
   validateSearch: (search: Record<string, unknown>) => ({
