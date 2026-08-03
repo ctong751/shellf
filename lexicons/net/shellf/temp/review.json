@@ -1,0 +1,40 @@
+{
+  "lexicon": 1,
+  "id": "net.shellf.temp.review",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "An account's single review of a piece of content.",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["content", "rating"],
+        "properties": {
+          "content": {
+            "type": "ref",
+            "ref": "net.shellf.temp.defs#content"
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 10000,
+            "maxGraphemes": 2000
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Optional for imports whose original review time is unknown.",
+            "format": "datetime"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

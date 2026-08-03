@@ -7,11 +7,11 @@ export interface Episode {
   title: string
 }
 
-export interface WatchingSeries {
+export interface WatchingTvShow {
   accent: Accent
   currentEpisode: Episode
   id: string
-  kind: 'series'
+  kind: 'tv_show'
   nextEpisode?: Episode
   posterUrl?: string
   season: number
@@ -31,14 +31,13 @@ export interface WatchingMovie {
   title: string
 }
 
-export type WatchingItem = WatchingMovie | WatchingSeries
+export type WatchingItem = WatchingMovie | WatchingTvShow
 
 export interface RecentItem {
   accent: Accent
   id: string
   meta: string
   posterUrl?: string
-  sourceItem?: WatchingItem
   time: string
   title: string
 }
@@ -58,3 +57,9 @@ export interface HomeMedia {
   savedItems: SavedItem[]
   watchingItems: WatchingItem[]
 }
+
+export const emptyHomeMedia = (): HomeMedia => ({
+  recentItems: [],
+  savedItems: [],
+  watchingItems: [],
+})

@@ -1,0 +1,25 @@
+{
+  "lexicon": 1,
+  "id": "net.shellf.temp.consume",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Records that an account consumed a piece of content, such as watching a movie or TV episode.",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["content", "consumedAt"],
+        "properties": {
+          "content": {
+            "type": "ref",
+            "ref": "net.shellf.temp.defs#content"
+          },
+          "consumedAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

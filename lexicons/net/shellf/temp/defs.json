@@ -1,0 +1,44 @@
+{
+  "lexicon": 1,
+  "id": "net.shellf.temp.defs",
+  "description": "Shared definitions for Shellf's experimental records.",
+  "defs": {
+    "content": {
+      "type": "object",
+      "description": "A canonical TMDB identity. TV episodes also carry their parent show and episode coordinates so they can be resolved through TMDB's nested episode API.",
+      "required": ["kind", "source", "id"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "knownValues": ["movie", "tv_show", "tv_episode"],
+          "maxLength": 64
+        },
+        "source": {
+          "type": "string",
+          "knownValues": ["tmdb"],
+          "maxLength": 64
+        },
+        "id": {
+          "type": "string",
+          "description": "The numeric TMDB movie, show, or episode identifier.",
+          "maxLength": 64
+        },
+        "showId": {
+          "type": "string",
+          "description": "Required by the AppView when kind is tv_episode; the parent show's numeric TMDB identifier.",
+          "maxLength": 64
+        },
+        "seasonNumber": {
+          "type": "integer",
+          "description": "Required by the AppView when kind is tv_episode.",
+          "minimum": 0
+        },
+        "episodeNumber": {
+          "type": "integer",
+          "description": "Required by the AppView when kind is tv_episode.",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}

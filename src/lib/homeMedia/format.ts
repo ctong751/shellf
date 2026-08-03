@@ -19,3 +19,26 @@ export const formatReleaseDate = (releaseDate: string) => {
   }).format(date)
   return `Released ${formatted}`
 }
+
+export const formatRelativeTime = (date: Date, now = new Date()) => {
+  const elapsedSeconds = Math.max(
+    0,
+    Math.floor((now.getTime() - date.getTime()) / 1000),
+  )
+  if (elapsedSeconds < 60) return 'Just now'
+
+  const elapsedMinutes = Math.floor(elapsedSeconds / 60)
+  if (elapsedMinutes < 60) return `${elapsedMinutes}m ago`
+
+  const elapsedHours = Math.floor(elapsedMinutes / 60)
+  if (elapsedHours < 24) return `${elapsedHours}h ago`
+
+  const elapsedDays = Math.floor(elapsedHours / 24)
+  if (elapsedDays === 1) return 'Yesterday'
+  if (elapsedDays < 7) return `${elapsedDays}d ago`
+
+  return new Intl.DateTimeFormat('en-US', {
+    day: 'numeric',
+    month: 'short',
+  }).format(date)
+}

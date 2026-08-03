@@ -1,0 +1,26 @@
+{
+  "lexicon": 1,
+  "id": "net.shellf.temp.stopConsuming",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Closes a specific Shellf startConsuming action.",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["start", "stoppedAt"],
+        "properties": {
+          "start": {
+            "type": "ref",
+            "description": "A strong reference to a net.shellf.temp.startConsuming record. The AppView enforces the target collection and author.",
+            "ref": "com.atproto.repo.strongRef"
+          },
+          "stoppedAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

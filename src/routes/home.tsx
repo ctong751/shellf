@@ -17,10 +17,16 @@ import {
 } from '@/components/ui/empty'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getViewer, signOut } from '@/lib/auth'
-import { fallbackHomeMedia } from '@/lib/homeMedia/fallback'
-import { getHomeMedia } from '@/lib/homeMedia/getHomeMedia'
+import {
+  getHomeMedia,
+  markWatched,
+  startWatching,
+  undoWatch,
+} from '@/lib/homeMedia'
 import {
   type Accent,
+  emptyHomeMedia,
+  type HomeMedia,
   type RecentItem,
   type SavedItem,
   type WatchingItem,
@@ -50,16 +56,13 @@ const Home = () => {
   const queueRef = useRef<HTMLDivElement>(null)
   const [activeTab, setActiveTab] = useState<HomeTab>('watch-list')
   const [isSigningOut, setIsSigningOut] = useState(false)
-  const [recentItems, setRecentItems] = useState(
-    media?.recentItems ?? fallbackHomeMedia.recentItems,
-  )
-  const [savedItems, setSavedItems] = useState(
-    media?.savedItems ?? fallbackHomeMedia.savedItems,
-  )
+  const initialMedia = media ?? emptyHomeMedia()
+  const [recentItems, setRecentItems] = useState(initialMedia.recentItems)
+  const [savedItems, setSavedItems] = useState(initialMedia.savedItems)
+  const [collectionError, setCollectionError] = useState<string>()
+  const [pendingItemId, setPendingItemId] = useState<string>()
   const [signOutError, setSignOutError] = useState<string>()
-  const [watchingItems, setWatchingItems] = useState(
-    media?.watchingItems ?? fallbackHomeMedia.watchingItems,
-  )
+  const [watchingItems, setWatchingItems] = useState(initialMedia.watchingItems)
 
   const handleSignOut = async () => {
     setIsSigningOut(true)
@@ -81,88 +84,48 @@ const Home = () => {
     })
   }
 
-  const handleMarkWatched = (itemId: string) => {
-    const item = watchingItems.find(({ id }) => id === itemId)
-    if (!item) return
-
-    const meta =
-      item.kind === 'series'
-        ? `S${item.season} E${item.currentEpisode.number} · ${item.currentEpisode.title}`
-        : `Movie · ${item.runtime}`
-
-    setRecentItems((items) => [
-      {
-        accent: item.accent,
-        id: `recent-${item.id}-${Date.now()}`,
-        meta,
-        sourceItem: item,
-        time: 'Just now',
-        title: item.title,
-      },
-      ...items,
-    ])
-
-    if (
-      item.kind === 'movie' ||
-      item.currentEpisode.number >= item.totalEpisodes
-    ) {
-      setWatchingItems((items) => items.filter(({ id }) => id !== itemId))
-      return
-    }
-
-    const nextEpisode = item.nextEpisode ?? {
-      description: item.showDescription,
-      number: item.currentEpisode.number + 1,
-      title: 'Next episode',
-    }
-
-    setWatchingItems((items) =>
-      items.map((candidate) => {
-        if (candidate.id !== itemId || candidate.kind !== 'series') {
-          return candidate
-        }
-
-        return {
-          ...candidate,
-          currentEpisode: nextEpisode,
-          nextEpisode: undefined,
-          watchedEpisodes: candidate.watchedEpisodes + 1,
-        }
-      }),
-    )
+  const applyMedia = (nextMedia: HomeMedia) => {
+    setRecentItems(nextMedia.recentItems)
+    setSavedItems(nextMedia.savedItems)
+    setWatchingItems(nextMedia.watchingItems)
   }
 
-  const handleUndo = (recentItem: RecentItem) => {
-    setRecentItems((items) => items.filter(({ id }) => id !== recentItem.id))
-    const sourceItem = recentItem.sourceItem
-    if (!sourceItem) return
-
-    setWatchingItems((items) => {
-      const existingIndex = items.findIndex(({ id }) => id === sourceItem.id)
-      if (existingIndex === -1) return [sourceItem, ...items]
-
-      return items.map((item) =>
-        item.id === sourceItem.id ? sourceItem : item,
-      )
-    })
+  const handleMarkWatched = async (itemId: string) => {
+    setCollectionError(undefined)
+    setPendingItemId(itemId)
+    try {
+      applyMedia(await markWatched({ data: itemId }))
+    } catch (error) {
+      setCollectionError(getErrorMessage(error))
+    } finally {
+      setPendingItemId(undefined)
+    }
   }
 
-  const handleStartWatching = (savedItem: SavedItem) => {
-    setSavedItems((items) => items.filter(({ id }) => id !== savedItem.id))
-    setWatchingItems((items) => [
-      {
-        accent: savedItem.accent,
-        description: savedItem.description,
-        id: savedItem.id,
-        kind: 'movie',
-        posterUrl: savedItem.posterUrl,
-        runtime: savedItem.runtime,
-        title: savedItem.title,
-      },
-      ...items,
-    ])
-    setActiveTab('watch-list')
-    requestAnimationFrame(() => queueRef.current?.scrollTo({ left: 0 }))
+  const handleUndo = async (recentItem: RecentItem) => {
+    setCollectionError(undefined)
+    setPendingItemId(recentItem.id)
+    try {
+      applyMedia(await undoWatch({ data: recentItem.id }))
+    } catch (error) {
+      setCollectionError(getErrorMessage(error))
+    } finally {
+      setPendingItemId(undefined)
+    }
+  }
+
+  const handleStartWatching = async (savedItem: SavedItem) => {
+    setCollectionError(undefined)
+    setPendingItemId(savedItem.id)
+    try {
+      applyMedia(await startWatching({ data: savedItem.id }))
+      setActiveTab('watch-list')
+      requestAnimationFrame(() => queueRef.current?.scrollTo({ left: 0 }))
+    } catch (error) {
+      setCollectionError(getErrorMessage(error))
+    } finally {
+      setPendingItemId(undefined)
+    }
   }
 
   const watchListCount = watchingItems.length + savedItems.length
@@ -213,6 +176,12 @@ const Home = () => {
       {signOutError && (
         <p className="mt-6 text-[0.76rem] text-destructive" role="alert">
           {signOutError}
+        </p>
+      )}
+
+      {collectionError && (
+        <p className="mt-6 text-[0.76rem] text-destructive" role="alert">
+          {collectionError}
         </p>
       )}
 
@@ -272,9 +241,10 @@ const Home = () => {
                 >
                   {watchingItems.map((item) => (
                     <ProgressCard
+                      isPending={pendingItemId === item.id}
                       item={item}
                       key={item.id}
-                      onMarkWatched={handleMarkWatched}
+                      onMarkWatched={(itemId) => void handleMarkWatched(itemId)}
                     />
                   ))}
                 </div>
@@ -290,7 +260,12 @@ const Home = () => {
               {recentItems.length > 0 ? (
                 <div className="grid grid-cols-3 border-b border-border max-[900px]:grid-cols-[repeat(3,minmax(300px,1fr))] max-[900px]:overflow-x-auto">
                   {recentItems.slice(0, 3).map((item) => (
-                    <RecentCard item={item} key={item.id} onUndo={handleUndo} />
+                    <RecentCard
+                      isPending={pendingItemId === item.id}
+                      item={item}
+                      key={item.id}
+                      onUndo={(recentItem) => void handleUndo(recentItem)}
+                    />
                   ))}
                 </div>
               ) : (
@@ -309,9 +284,12 @@ const Home = () => {
                 <div className="grid grid-cols-4 gap-4 pt-4 max-[900px]:grid-cols-2 max-[900px]:gap-y-8 max-[700px]:grid-cols-2 max-[700px]:gap-x-3 max-[700px]:gap-y-6 max-[430px]:grid-cols-1">
                   {savedItems.map((item) => (
                     <SavedCard
+                      isPending={pendingItemId === item.id}
                       item={item}
                       key={item.id}
-                      onStartWatching={handleStartWatching}
+                      onStartWatching={(savedItem) =>
+                        void handleStartWatching(savedItem)
+                      }
                     />
                   ))}
                 </div>
@@ -404,23 +382,28 @@ const SectionHeading = ({
 )
 
 interface ProgressCardProps {
+  isPending: boolean
   item: WatchingItem
   onMarkWatched: (itemId: string) => void
 }
 
-const ProgressCard = ({ item, onMarkWatched }: ProgressCardProps) => {
-  const isSeries = item.kind === 'series'
-  const progress = isSeries
+const ProgressCard = ({
+  isPending,
+  item,
+  onMarkWatched,
+}: ProgressCardProps) => {
+  const isTvShow = item.kind === 'tv_show'
+  const progress = isTvShow
     ? Math.round((item.watchedEpisodes / item.totalEpisodes) * 100)
     : 0
-  const kicker = isSeries
+  const kicker = isTvShow
     ? `S${item.season} E${item.currentEpisode.number}`
     : `Movie · ${item.runtime}`
-  const subtitle = isSeries ? item.currentEpisode.title : 'Ready to watch'
-  const description = isSeries
+  const subtitle = isTvShow ? item.currentEpisode.title : 'Ready to watch'
+  const description = isTvShow
     ? item.currentEpisode.description
     : item.description
-  const remaining = isSeries
+  const remaining = isTvShow
     ? `${item.totalEpisodes - item.watchedEpisodes} episodes left`
     : item.runtime
 
@@ -463,11 +446,13 @@ const ProgressCard = ({ item, onMarkWatched }: ProgressCardProps) => {
         </div>
         <Button
           className="mt-3 w-full"
+          disabled={isPending}
           size="sm"
           type="button"
           onClick={() => onMarkWatched(item.id)}
         >
-          <CheckIcon data-icon="inline-start" aria-hidden="true" /> Mark watched
+          <CheckIcon data-icon="inline-start" aria-hidden="true" />{' '}
+          {isPending ? 'Saving…' : 'Mark watched'}
         </Button>
       </div>
     </article>
@@ -493,11 +478,12 @@ const CompactHeading = ({ eyebrow, title }: CompactHeadingProps) => (
 )
 
 interface RecentCardProps {
+  isPending: boolean
   item: RecentItem
   onUndo: (item: RecentItem) => void
 }
 
-const RecentCard = ({ item, onUndo }: RecentCardProps) => (
+const RecentCard = ({ isPending, item, onUndo }: RecentCardProps) => (
   <article className="grid min-w-0 grid-cols-[66px_minmax(0,1fr)_auto] items-center gap-[0.9rem] border-r border-border p-4 last:border-r-0">
     <Poster
       accent={item.accent}
@@ -516,18 +502,25 @@ const RecentCard = ({ item, onUndo }: RecentCardProps) => (
         {item.meta}
       </p>
     </div>
-    <Button size="xs" variant="link" type="button" onClick={() => onUndo(item)}>
-      Undo
+    <Button
+      disabled={isPending}
+      size="xs"
+      variant="link"
+      type="button"
+      onClick={() => onUndo(item)}
+    >
+      {isPending ? 'Saving…' : 'Undo'}
     </Button>
   </article>
 )
 
 interface SavedCardProps {
+  isPending: boolean
   item: SavedItem
   onStartWatching: (item: SavedItem) => void
 }
 
-const SavedCard = ({ item, onStartWatching }: SavedCardProps) => (
+const SavedCard = ({ isPending, item, onStartWatching }: SavedCardProps) => (
   <article className="flex min-w-0 flex-col">
     <Poster
       accent={item.accent}
@@ -549,12 +542,13 @@ const SavedCard = ({ item, onStartWatching }: SavedCardProps) => (
     </div>
     <Button
       className="mt-auto w-full"
+      disabled={isPending}
       size="sm"
       variant="outline"
       type="button"
       onClick={() => onStartWatching(item)}
     >
-      Start watching
+      {isPending ? 'Saving…' : 'Start watching'}
     </Button>
   </article>
 )

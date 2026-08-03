@@ -1,0 +1,25 @@
+{
+  "lexicon": 1,
+  "id": "net.shellf.temp.startConsuming",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Marks the beginning of consuming long-running content such as a TV show.",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["content", "startedAt"],
+        "properties": {
+          "content": {
+            "type": "ref",
+            "ref": "net.shellf.temp.defs#content"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}
