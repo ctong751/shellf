@@ -1,0 +1,484 @@
+{
+  "id": "ce6f43da-47d7-470d-9867-ecd583825cb6",
+  "prevId": "28147cc1-4da8-4714-81a9-71aeca71ca4a",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.library_items": {
+      "name": "library_items",
+      "schema": "",
+      "columns": {
+        "user_did": {
+          "name": "user_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record_key": {
+          "name": "record_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_source": {
+          "name": "subject_source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'tmdb'"
+        },
+        "media_type": {
+          "name": "media_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "media_id": {
+          "name": "media_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "season": {
+          "name": "season",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "episode": {
+          "name": "episode",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "indexed_at": {
+          "name": "indexed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "library_items_user_subject_unique": {
+          "name": "library_items_user_subject_unique",
+          "columns": [
+            {
+              "expression": "user_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "subject_source",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "media_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "media_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "library_items_user_status_idx": {
+          "name": "library_items_user_status_idx",
+          "columns": [
+            {
+              "expression": "user_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "library_items_user_did_users_did_fk": {
+          "name": "library_items_user_did_users_did_fk",
+          "tableFrom": "library_items",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "library_items_user_did_record_key_pk": {
+          "name": "library_items_user_did_record_key_pk",
+          "columns": [
+            "user_did",
+            "record_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "library_items_subject_source_check": {
+          "name": "library_items_subject_source_check",
+          "value": "\"library_items\".\"subject_source\" = 'tmdb'"
+        },
+        "library_items_media_type_check": {
+          "name": "library_items_media_type_check",
+          "value": "\"library_items\".\"media_type\" in ('movie', 'series')"
+        },
+        "library_items_status_check": {
+          "name": "library_items_status_check",
+          "value": "\"library_items\".\"status\" in ('want-to-watch', 'watching')"
+        },
+        "library_items_progress_check": {
+          "name": "library_items_progress_check",
+          "value": "(\"library_items\".\"season\" is null and \"library_items\".\"episode\" is null) or (\"library_items\".\"media_type\" = 'series' and \"library_items\".\"season\" > 0 and \"library_items\".\"episode\" > 0)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.oauth_sessions": {
+      "name": "oauth_sessions",
+      "schema": "",
+      "columns": {
+        "did": {
+          "name": "did",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "session": {
+          "name": "session",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.oauth_states": {
+      "name": "oauth_states",
+      "schema": "",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.sessions": {
+      "name": "sessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_did": {
+          "name": "user_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sessions_user_did_users_did_fk": {
+          "name": "sessions_user_did_users_did_fk",
+          "tableFrom": "sessions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "did": {
+          "name": "did",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "handle": {
+          "name": "handle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.watch_events": {
+      "name": "watch_events",
+      "schema": "",
+      "columns": {
+        "user_did": {
+          "name": "user_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record_key": {
+          "name": "record_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_source": {
+          "name": "subject_source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'tmdb'"
+        },
+        "media_type": {
+          "name": "media_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "media_id": {
+          "name": "media_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "season": {
+          "name": "season",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "episode": {
+          "name": "episode",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "watched_at": {
+          "name": "watched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indexed_at": {
+          "name": "indexed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "watch_events_user_watched_at_idx": {
+          "name": "watch_events_user_watched_at_idx",
+          "columns": [
+            {
+              "expression": "user_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "watched_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "watch_events_user_did_users_did_fk": {
+          "name": "watch_events_user_did_users_did_fk",
+          "tableFrom": "watch_events",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "watch_events_user_did_record_key_pk": {
+          "name": "watch_events_user_did_record_key_pk",
+          "columns": [
+            "user_did",
+            "record_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "watch_events_subject_source_check": {
+          "name": "watch_events_subject_source_check",
+          "value": "\"watch_events\".\"subject_source\" = 'tmdb'"
+        },
+        "watch_events_media_type_check": {
+          "name": "watch_events_media_type_check",
+          "value": "\"watch_events\".\"media_type\" in ('movie', 'series')"
+        },
+        "watch_events_episode_check": {
+          "name": "watch_events_episode_check",
+          "value": "(\"watch_events\".\"media_type\" = 'movie' and \"watch_events\".\"season\" is null and \"watch_events\".\"episode\" is null) or (\"watch_events\".\"media_type\" = 'series' and \"watch_events\".\"season\" > 0 and \"watch_events\".\"episode\" > 0)"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -1,18 +1,44 @@
+import { getMediaAccent } from '@/lib/homeMedia/accent'
 import { formatReleaseDate, formatRuntime } from '@/lib/homeMedia/format'
-import { savedSeeds } from '@/lib/homeMedia/seeds'
+import type { SavedContentRecord } from '@/lib/homeMedia/records'
 import type { SavedItem } from '@/lib/homeMedia/types'
 import type { TmdbRequestClient } from '@/lib/tmdb/createRequestClient.server'
 import { getPosterUrl } from '@/lib/tmdb/getPosterUrl'
 
-export const loadSavedItems = (tmdb: TmdbRequestClient) =>
+export const loadSavedItems = (
+  tmdb: TmdbRequestClient,
+  records: SavedContentRecord[],
+) =>
   Promise.all(
-    savedSeeds.map(async (seed): Promise<SavedItem> => {
-      const movie = await tmdb.getMovieDetails(seed.tmdbId)
+    records.map(async ({ content, save }): Promise<SavedItem> => {
+      const tmdbId = Number(content.externalId)
+      const accent = getMediaAccent(
+        `${content.source}:${content.kind}:${content.externalId}`,
+      )
+
+      if (content.kind === 'tv_show') {
+        const series = await tmdb.getTvDetails(tmdbId)
+        return {
+          accent,
+          availability: 'Series',
+          description: series.overview,
+          id: save.recordKey,
+          posterUrl: getPosterUrl(series.poster_path),
+          runtime: 'Series',
+          title: series.name,
+        }
+      }
+
+      if (content.kind !== 'movie') {
+        throw new Error(`Cannot hydrate content kind: ${content.kind}`)
+      }
+
+      const movie = await tmdb.getMovieDetails(tmdbId)
       return {
-        accent: seed.accent,
+        accent,
         availability: formatReleaseDate(movie.release_date),
         description: movie.overview,
-        id: `movie-${movie.id}`,
+        id: save.recordKey,
         posterUrl: getPosterUrl(movie.poster_path),
         runtime: formatRuntime(movie.runtime),
         title: movie.title,

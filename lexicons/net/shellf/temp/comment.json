@@ -1,0 +1,35 @@
+{
+  "lexicon": 1,
+  "id": "net.shellf.temp.comment",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A comment on content, optionally replying to another Shellf comment.",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["content", "text", "createdAt"],
+        "properties": {
+          "content": {
+            "type": "ref",
+            "ref": "net.shellf.temp.defs#content"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 3000,
+            "maxGraphemes": 300
+          },
+          "reply": {
+            "type": "ref",
+            "description": "A strong reference to another net.shellf.temp.comment record. The AppView enforces the target collection.",
+            "ref": "com.atproto.repo.strongRef"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

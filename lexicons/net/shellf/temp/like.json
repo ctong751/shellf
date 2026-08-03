@@ -1,0 +1,26 @@
+{
+  "lexicon": 1,
+  "id": "net.shellf.temp.like",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Likes a Shellf comment.",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["subject", "createdAt"],
+        "properties": {
+          "subject": {
+            "type": "ref",
+            "description": "A strong reference to a net.shellf.temp.comment record. The AppView enforces the target collection.",
+            "ref": "com.atproto.repo.strongRef"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

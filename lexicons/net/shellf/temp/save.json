@@ -1,0 +1,25 @@
+{
+  "lexicon": 1,
+  "id": "net.shellf.temp.save",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Saves content to an account's Want to Watch list.",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["content", "createdAt"],
+        "properties": {
+          "content": {
+            "type": "ref",
+            "ref": "net.shellf.temp.defs#content"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

@@ -8,6 +8,34 @@
       "when": 1785624525268,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1785693528558,
+      "tag": "0001_fearless_vengeance",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785704395246,
+      "tag": "0002_fast_whiplash",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785715833529,
+      "tag": "0003_supreme_nightmare",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785715986797,
+      "tag": "0004_medical_exiles",
+      "breakpoints": true
     }
   ]
 }

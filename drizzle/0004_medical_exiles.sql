@@ -1,0 +1,3 @@
+ALTER TABLE "comments" ADD CONSTRAINT "comments_reply_target_check" CHECK ("comments"."reply_uri" is null or split_part("comments"."reply_uri", '/', 4) = 'net.shellf.temp.comment');--> statement-breakpoint
+ALTER TABLE "consumption_stops" ADD CONSTRAINT "consumption_stops_subject_target_check" CHECK (split_part("consumption_stops"."subject_uri", '/', 4) = 'net.shellf.temp.startConsuming');--> statement-breakpoint
+ALTER TABLE "likes" ADD CONSTRAINT "likes_subject_target_check" CHECK (split_part("likes"."subject_uri", '/', 4) = 'net.shellf.temp.comment');

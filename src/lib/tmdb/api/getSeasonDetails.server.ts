@@ -1,9 +1,11 @@
 import { fetchFromTmdb } from '@/lib/tmdb/client.server'
 
 export interface TmdbEpisode {
+  id: number
   episode_number: number
   name: string
   overview: string
+  season_number: number
 }
 
 export interface TmdbSeasonDetails {

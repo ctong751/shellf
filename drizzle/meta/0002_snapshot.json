@@ -1,0 +1,548 @@
+{
+  "id": "a6059748-7019-4b72-8e6a-093d8ed14e51",
+  "prevId": "ce6f43da-47d7-470d-9867-ecd583825cb6",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.media_items": {
+      "name": "media_items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "media_items_source_identity_unique": {
+          "name": "media_items_source_identity_unique",
+          "columns": [
+            {
+              "expression": "source",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "external_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "media_items_kind_check": {
+          "name": "media_items_kind_check",
+          "value": "\"media_items\".\"kind\" in ('movie', 'tv_show', 'book')"
+        },
+        "media_items_source_check": {
+          "name": "media_items_source_check",
+          "value": "length(\"media_items\".\"source\") between 1 and 64"
+        },
+        "media_items_external_id_check": {
+          "name": "media_items_external_id_check",
+          "value": "length(\"media_items\".\"external_id\") between 1 and 256"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.oauth_sessions": {
+      "name": "oauth_sessions",
+      "schema": "",
+      "columns": {
+        "did": {
+          "name": "did",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "session": {
+          "name": "session",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.oauth_states": {
+      "name": "oauth_states",
+      "schema": "",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.sessions": {
+      "name": "sessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_did": {
+          "name": "user_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sessions_user_did_users_did_fk": {
+          "name": "sessions_user_did_users_did_fk",
+          "tableFrom": "sessions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.shelf_items": {
+      "name": "shelf_items",
+      "schema": "",
+      "columns": {
+        "user_did": {
+          "name": "user_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record_key": {
+          "name": "record_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "media_item_id": {
+          "name": "media_item_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "season": {
+          "name": "season",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "episode": {
+          "name": "episode",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "indexed_at": {
+          "name": "indexed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "shelf_items_user_media_unique": {
+          "name": "shelf_items_user_media_unique",
+          "columns": [
+            {
+              "expression": "user_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "media_item_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "shelf_items_user_state_idx": {
+          "name": "shelf_items_user_state_idx",
+          "columns": [
+            {
+              "expression": "user_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "state",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "shelf_items_user_did_users_did_fk": {
+          "name": "shelf_items_user_did_users_did_fk",
+          "tableFrom": "shelf_items",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "shelf_items_media_item_id_media_items_id_fk": {
+          "name": "shelf_items_media_item_id_media_items_id_fk",
+          "tableFrom": "shelf_items",
+          "tableTo": "media_items",
+          "columnsFrom": [
+            "media_item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "shelf_items_user_did_record_key_pk": {
+          "name": "shelf_items_user_did_record_key_pk",
+          "columns": [
+            "user_did",
+            "record_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "shelf_items_state_check": {
+          "name": "shelf_items_state_check",
+          "value": "\"shelf_items\".\"state\" in ('planned', 'in-progress')"
+        },
+        "shelf_items_progress_check": {
+          "name": "shelf_items_progress_check",
+          "value": "(\"shelf_items\".\"season\" is null and \"shelf_items\".\"episode\" is null) or (\"shelf_items\".\"season\" > 0 and \"shelf_items\".\"episode\" > 0)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "did": {
+          "name": "did",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "handle": {
+          "name": "handle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.watch_events": {
+      "name": "watch_events",
+      "schema": "",
+      "columns": {
+        "user_did": {
+          "name": "user_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record_key": {
+          "name": "record_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "media_item_id": {
+          "name": "media_item_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "season": {
+          "name": "season",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "episode": {
+          "name": "episode",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "watched_at": {
+          "name": "watched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indexed_at": {
+          "name": "indexed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "watch_events_user_watched_at_idx": {
+          "name": "watch_events_user_watched_at_idx",
+          "columns": [
+            {
+              "expression": "user_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "watched_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "watch_events_user_did_users_did_fk": {
+          "name": "watch_events_user_did_users_did_fk",
+          "tableFrom": "watch_events",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "watch_events_media_item_id_media_items_id_fk": {
+          "name": "watch_events_media_item_id_media_items_id_fk",
+          "tableFrom": "watch_events",
+          "tableTo": "media_items",
+          "columnsFrom": [
+            "media_item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "watch_events_user_did_record_key_pk": {
+          "name": "watch_events_user_did_record_key_pk",
+          "columns": [
+            "user_did",
+            "record_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "watch_events_episode_check": {
+          "name": "watch_events_episode_check",
+          "value": "(\"watch_events\".\"season\" is null and \"watch_events\".\"episode\" is null) or (\"watch_events\".\"season\" > 0 and \"watch_events\".\"episode\" > 0)"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

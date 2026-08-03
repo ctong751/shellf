@@ -1,0 +1,1245 @@
+{
+  "id": "cea7f039-33a3-474b-b203-588ab54aa011",
+  "prevId": "9dd94266-fcba-405b-81e0-f19d8741b95a",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.comments": {
+      "name": "comments",
+      "schema": "",
+      "columns": {
+        "author_did": {
+          "name": "author_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record_key": {
+          "name": "record_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content_id": {
+          "name": "content_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reply_uri": {
+          "name": "reply_uri",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reply_cid": {
+          "name": "reply_cid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indexed_at": {
+          "name": "indexed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "comments_content_created_at_idx": {
+          "name": "comments_content_created_at_idx",
+          "columns": [
+            {
+              "expression": "content_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "comments_reply_uri_idx": {
+          "name": "comments_reply_uri_idx",
+          "columns": [
+            {
+              "expression": "reply_uri",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "comments_author_did_users_did_fk": {
+          "name": "comments_author_did_users_did_fk",
+          "tableFrom": "comments",
+          "tableTo": "users",
+          "columnsFrom": [
+            "author_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "comments_content_id_content_id_fk": {
+          "name": "comments_content_id_content_id_fk",
+          "tableFrom": "comments",
+          "tableTo": "content",
+          "columnsFrom": [
+            "content_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "comments_author_did_record_key_pk": {
+          "name": "comments_author_did_record_key_pk",
+          "columns": [
+            "author_did",
+            "record_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "comments_reply_ref_check": {
+          "name": "comments_reply_ref_check",
+          "value": "(\"comments\".\"reply_uri\" is null and \"comments\".\"reply_cid\" is null) or (\"comments\".\"reply_uri\" is not null and \"comments\".\"reply_cid\" is not null)"
+        },
+        "comments_reply_target_check": {
+          "name": "comments_reply_target_check",
+          "value": "\"comments\".\"reply_uri\" is null or split_part(\"comments\".\"reply_uri\", '/', 4) = 'net.shellf.temp.comment'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.consumes": {
+      "name": "consumes",
+      "schema": "",
+      "columns": {
+        "author_did": {
+          "name": "author_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record_key": {
+          "name": "record_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content_id": {
+          "name": "content_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "consumed_at": {
+          "name": "consumed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indexed_at": {
+          "name": "indexed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "consumes_author_consumed_at_idx": {
+          "name": "consumes_author_consumed_at_idx",
+          "columns": [
+            {
+              "expression": "author_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "consumed_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "consumes_content_consumed_at_idx": {
+          "name": "consumes_content_consumed_at_idx",
+          "columns": [
+            {
+              "expression": "content_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "consumed_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "consumes_author_did_users_did_fk": {
+          "name": "consumes_author_did_users_did_fk",
+          "tableFrom": "consumes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "author_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "consumes_content_id_content_id_fk": {
+          "name": "consumes_content_id_content_id_fk",
+          "tableFrom": "consumes",
+          "tableTo": "content",
+          "columnsFrom": [
+            "content_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "consumes_author_did_record_key_pk": {
+          "name": "consumes_author_did_record_key_pk",
+          "columns": [
+            "author_did",
+            "record_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.consumption_starts": {
+      "name": "consumption_starts",
+      "schema": "",
+      "columns": {
+        "author_did": {
+          "name": "author_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record_key": {
+          "name": "record_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content_id": {
+          "name": "content_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indexed_at": {
+          "name": "indexed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "consumption_starts_author_started_at_idx": {
+          "name": "consumption_starts_author_started_at_idx",
+          "columns": [
+            {
+              "expression": "author_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "started_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "consumption_starts_author_content_idx": {
+          "name": "consumption_starts_author_content_idx",
+          "columns": [
+            {
+              "expression": "author_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "content_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "consumption_starts_author_did_users_did_fk": {
+          "name": "consumption_starts_author_did_users_did_fk",
+          "tableFrom": "consumption_starts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "author_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "consumption_starts_content_id_content_id_fk": {
+          "name": "consumption_starts_content_id_content_id_fk",
+          "tableFrom": "consumption_starts",
+          "tableTo": "content",
+          "columnsFrom": [
+            "content_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "consumption_starts_author_did_record_key_pk": {
+          "name": "consumption_starts_author_did_record_key_pk",
+          "columns": [
+            "author_did",
+            "record_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.consumption_stops": {
+      "name": "consumption_stops",
+      "schema": "",
+      "columns": {
+        "author_did": {
+          "name": "author_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record_key": {
+          "name": "record_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_uri": {
+          "name": "subject_uri",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_cid": {
+          "name": "subject_cid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "start_author_did": {
+          "name": "start_author_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_record_key": {
+          "name": "start_record_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stopped_at": {
+          "name": "stopped_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indexed_at": {
+          "name": "indexed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "consumption_stops_start_unique": {
+          "name": "consumption_stops_start_unique",
+          "columns": [
+            {
+              "expression": "start_author_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "start_record_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "consumption_stops_author_stopped_at_idx": {
+          "name": "consumption_stops_author_stopped_at_idx",
+          "columns": [
+            {
+              "expression": "author_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "stopped_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "consumption_stops_author_did_users_did_fk": {
+          "name": "consumption_stops_author_did_users_did_fk",
+          "tableFrom": "consumption_stops",
+          "tableTo": "users",
+          "columnsFrom": [
+            "author_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "consumption_stops_start_fk": {
+          "name": "consumption_stops_start_fk",
+          "tableFrom": "consumption_stops",
+          "tableTo": "consumption_starts",
+          "columnsFrom": [
+            "start_author_did",
+            "start_record_key"
+          ],
+          "columnsTo": [
+            "author_did",
+            "record_key"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "consumption_stops_author_did_record_key_pk": {
+          "name": "consumption_stops_author_did_record_key_pk",
+          "columns": [
+            "author_did",
+            "record_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "consumption_stops_author_check": {
+          "name": "consumption_stops_author_check",
+          "value": "\"consumption_stops\".\"author_did\" = \"consumption_stops\".\"start_author_did\""
+        },
+        "consumption_stops_subject_target_check": {
+          "name": "consumption_stops_subject_target_check",
+          "value": "split_part(\"consumption_stops\".\"subject_uri\", '/', 4) = 'net.shellf.temp.startConsuming'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.content": {
+      "name": "content",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'tmdb'"
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_content_id": {
+          "name": "parent_content_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "season_number": {
+          "name": "season_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "episode_number": {
+          "name": "episode_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "content_source_identity_unique": {
+          "name": "content_source_identity_unique",
+          "columns": [
+            {
+              "expression": "source",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "external_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "content_parent_idx": {
+          "name": "content_parent_idx",
+          "columns": [
+            {
+              "expression": "parent_content_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "content_parent_content_id_content_id_fk": {
+          "name": "content_parent_content_id_content_id_fk",
+          "tableFrom": "content",
+          "tableTo": "content",
+          "columnsFrom": [
+            "parent_content_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "content_kind_check": {
+          "name": "content_kind_check",
+          "value": "\"content\".\"kind\" in ('movie', 'tv_show', 'tv_episode')"
+        },
+        "content_source_check": {
+          "name": "content_source_check",
+          "value": "\"content\".\"source\" = 'tmdb'"
+        },
+        "content_external_id_check": {
+          "name": "content_external_id_check",
+          "value": "length(\"content\".\"external_id\") between 1 and 256"
+        },
+        "content_episode_identity_check": {
+          "name": "content_episode_identity_check",
+          "value": "(\"content\".\"kind\" = 'tv_episode' and \"content\".\"parent_content_id\" is not null and \"content\".\"season_number\" >= 0 and \"content\".\"episode_number\" > 0) or (\"content\".\"kind\" <> 'tv_episode' and \"content\".\"parent_content_id\" is null and \"content\".\"season_number\" is null and \"content\".\"episode_number\" is null)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.likes": {
+      "name": "likes",
+      "schema": "",
+      "columns": {
+        "author_did": {
+          "name": "author_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record_key": {
+          "name": "record_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_uri": {
+          "name": "subject_uri",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_cid": {
+          "name": "subject_cid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indexed_at": {
+          "name": "indexed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "likes_author_subject_unique": {
+          "name": "likes_author_subject_unique",
+          "columns": [
+            {
+              "expression": "author_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "subject_uri",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "likes_subject_uri_idx": {
+          "name": "likes_subject_uri_idx",
+          "columns": [
+            {
+              "expression": "subject_uri",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "likes_author_did_users_did_fk": {
+          "name": "likes_author_did_users_did_fk",
+          "tableFrom": "likes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "author_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "likes_author_did_record_key_pk": {
+          "name": "likes_author_did_record_key_pk",
+          "columns": [
+            "author_did",
+            "record_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "likes_subject_target_check": {
+          "name": "likes_subject_target_check",
+          "value": "split_part(\"likes\".\"subject_uri\", '/', 4) = 'net.shellf.temp.comment'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.oauth_sessions": {
+      "name": "oauth_sessions",
+      "schema": "",
+      "columns": {
+        "did": {
+          "name": "did",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "session": {
+          "name": "session",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.oauth_states": {
+      "name": "oauth_states",
+      "schema": "",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.reviews": {
+      "name": "reviews",
+      "schema": "",
+      "columns": {
+        "author_did": {
+          "name": "author_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record_key": {
+          "name": "record_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content_id": {
+          "name": "content_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rating": {
+          "name": "rating",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "indexed_at": {
+          "name": "indexed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "reviews_author_content_unique": {
+          "name": "reviews_author_content_unique",
+          "columns": [
+            {
+              "expression": "author_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "content_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "reviews_content_created_at_idx": {
+          "name": "reviews_content_created_at_idx",
+          "columns": [
+            {
+              "expression": "content_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "reviews_author_did_users_did_fk": {
+          "name": "reviews_author_did_users_did_fk",
+          "tableFrom": "reviews",
+          "tableTo": "users",
+          "columnsFrom": [
+            "author_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "reviews_content_id_content_id_fk": {
+          "name": "reviews_content_id_content_id_fk",
+          "tableFrom": "reviews",
+          "tableTo": "content",
+          "columnsFrom": [
+            "content_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "reviews_author_did_record_key_pk": {
+          "name": "reviews_author_did_record_key_pk",
+          "columns": [
+            "author_did",
+            "record_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "reviews_rating_check": {
+          "name": "reviews_rating_check",
+          "value": "\"reviews\".\"rating\" between 1 and 5"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.saves": {
+      "name": "saves",
+      "schema": "",
+      "columns": {
+        "author_did": {
+          "name": "author_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record_key": {
+          "name": "record_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content_id": {
+          "name": "content_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "indexed_at": {
+          "name": "indexed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "saves_author_content_unique": {
+          "name": "saves_author_content_unique",
+          "columns": [
+            {
+              "expression": "author_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "content_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "saves_author_created_at_idx": {
+          "name": "saves_author_created_at_idx",
+          "columns": [
+            {
+              "expression": "author_did",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "saves_author_did_users_did_fk": {
+          "name": "saves_author_did_users_did_fk",
+          "tableFrom": "saves",
+          "tableTo": "users",
+          "columnsFrom": [
+            "author_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "saves_content_id_content_id_fk": {
+          "name": "saves_content_id_content_id_fk",
+          "tableFrom": "saves",
+          "tableTo": "content",
+          "columnsFrom": [
+            "content_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "saves_author_did_record_key_pk": {
+          "name": "saves_author_did_record_key_pk",
+          "columns": [
+            "author_did",
+            "record_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.sessions": {
+      "name": "sessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_did": {
+          "name": "user_did",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sessions_user_did_users_did_fk": {
+          "name": "sessions_user_did_users_did_fk",
+          "tableFrom": "sessions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_did"
+          ],
+          "columnsTo": [
+            "did"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "did": {
+          "name": "did",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "handle": {
+          "name": "handle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

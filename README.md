@@ -53,9 +53,29 @@ pnpm run db:studio      # browse data
 pnpm run db:down        # stop the container
 ```
 
-Current tables are auth-only: `users`, `sessions` (cookie sessions, hashed
-tokens), and `oauth_states` / `oauth_sessions` (the OAuth client's state and
-token stores).
+Auth uses `users`, `sessions` (cookie sessions, hashed tokens), and
+`oauth_states` / `oauth_sessions` (the OAuth client's state and token stores).
+`content` holds canonical TMDB identities for movies, TV shows, and individual
+TV episodes without copying catalog metadata. Account records are projected
+into `saves`, `consumes`, `reviews`, `comments`, `likes`,
+`consumption_starts`, and `consumption_stops`. Account-owned rows are scoped by
+the author's DID and mirror the experimental lexicons in `lexicons/`.
+
+New accounts intentionally start empty. Home data is loaded from these tables
+and hydrated from TMDB; collection changes are committed by server functions,
+so they survive refreshes and sign-outs. Repository writes are not enabled yet:
+the database is the source of truth until the draft namespace, OAuth scopes,
+and ingestion path are finalized.
+
+## Draft lexicons
+
+The unpublished `net.shellf.temp.*` records model `Save`, `StartConsuming`,
+`StopConsuming`, `Consume`, `Review`, `Comment`, and comment `Like` actions.
+Every content-bearing record embeds a canonical TMDB `Content` identity. They
+are checked into `lexicons/net/shellf/temp/` and include `.temp.` in the NSID so
+the model can still evolve. See
+[`lexicons/README.md`](lexicons/README.md) for the field mapping and the work
+required before PDS writes are enabled.
 
 ## Auth flow
 
@@ -118,14 +138,13 @@ this boundary.
 ## Project structure
 
 ```text
-src/lib/oauth-client.server.ts         Server OAuth client + Drizzle stores
-src/lib/session.server.ts              Cookie session helpers
-src/lib/auth.ts                        Server functions (sign-in, viewer, sign-out)
-src/lib/oauth-metadata.ts              Shared client metadata builder
+src/lib/auth/                          OAuth, cookie sessions, and auth API
+src/lib/homeMedia/                      Account collection API + TMDB hydration
 src/routes/oauth.callback.ts           OAuth callback route
 src/routes/oauth-client-metadata[.]json.ts  Production metadata endpoint
 src/db/                                Drizzle client and schema
 drizzle/                               SQL migrations
+lexicons/                              Experimental AT Protocol record schemas
 wrangler.jsonc                         Main application Worker
 ```
 
