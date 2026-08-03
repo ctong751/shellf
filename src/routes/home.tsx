@@ -58,10 +58,12 @@ const Home = () => {
   const [isSigningOut, setIsSigningOut] = useState(false)
   const initialMedia = media ?? emptyHomeMedia()
   const [recentItems, setRecentItems] = useState(initialMedia.recentItems)
+  const [savedCount, setSavedCount] = useState(initialMedia.savedCount)
   const [savedItems, setSavedItems] = useState(initialMedia.savedItems)
   const [collectionError, setCollectionError] = useState<string>()
   const [pendingItemId, setPendingItemId] = useState<string>()
   const [signOutError, setSignOutError] = useState<string>()
+  const [watchingCount, setWatchingCount] = useState(initialMedia.watchingCount)
   const [watchingItems, setWatchingItems] = useState(initialMedia.watchingItems)
 
   const handleSignOut = async () => {
@@ -86,7 +88,9 @@ const Home = () => {
 
   const applyMedia = (nextMedia: HomeMedia) => {
     setRecentItems(nextMedia.recentItems)
+    setSavedCount(nextMedia.savedCount)
     setSavedItems(nextMedia.savedItems)
+    setWatchingCount(nextMedia.watchingCount)
     setWatchingItems(nextMedia.watchingItems)
   }
 
@@ -128,7 +132,21 @@ const Home = () => {
     }
   }
 
-  const watchListCount = watchingItems.length + savedItems.length
+  const watchListCount = watchingCount + savedCount
+  let watchingCountLabel = `${watchingCount} active`
+  if (watchingItems.length < watchingCount) {
+    watchingCountLabel = `${watchingItems.length} ready · ${watchingCount} imported`
+  }
+  let watchingEmptyMessage =
+    'Start something from Want to watch and it will appear here.'
+  if (watchingCount > 0) {
+    watchingEmptyMessage = `${watchingCount} titles were imported, but Shellf could not find a next episode for the titles it checked. Your import is still intact.`
+  }
+  let savedEmptyMessage =
+    'Your saved titles will live here when they become available.'
+  if (savedCount > 0) {
+    savedEmptyMessage = `${savedCount} saved titles are here, but their details could not be loaded from TMDB. Refresh in a moment.`
+  }
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-[1480px] overflow-hidden px-[4vw] max-[700px]:px-5">
@@ -146,20 +164,26 @@ const Home = () => {
         </a>
 
         <div className="flex items-center gap-3 max-[430px]:gap-[0.45rem]">
-          <div className="grid text-right max-[700px]:hidden">
-            <span className="font-display text-[0.95rem] font-medium">
-              {viewer.displayName}
-            </span>
-            <span className="font-mono text-[0.59rem] text-muted-foreground">
-              @{viewer.handle}
-            </span>
-          </div>
-          <Avatar size="lg" className="max-[430px]:size-9">
-            <AvatarImage src={viewer.avatar} alt="" />
-            <AvatarFallback>
-              {viewer.displayName.slice(0, 1).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <a
+            aria-label="Open account settings"
+            className="flex items-center gap-3 text-inherit no-underline"
+            href="/account"
+          >
+            <div className="grid text-right max-[700px]:hidden">
+              <span className="font-display text-[0.95rem] font-medium">
+                {viewer.displayName}
+              </span>
+              <span className="font-mono text-[0.59rem] text-muted-foreground">
+                @{viewer.handle}
+              </span>
+            </div>
+            <Avatar size="lg" className="max-[430px]:size-9">
+              <AvatarImage src={viewer.avatar} alt="" />
+              <AvatarFallback>
+                {viewer.displayName.slice(0, 1).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </a>
           <Button
             className="ml-[0.45rem] max-[700px]:ml-0 max-[700px]:text-[0.68rem]"
             size="xs"
@@ -208,7 +232,7 @@ const Home = () => {
           >
             <section className="pt-[clamp(2.4rem,4vw,3.8rem)]">
               <SectionHeading
-                count={`${watchingItems.length} active`}
+                count={watchingCountLabel}
                 eyebrow="Continue watching"
                 title="Pick up where you left off."
               >
@@ -249,9 +273,7 @@ const Home = () => {
                   ))}
                 </div>
               ) : (
-                <InlineEmptyState>
-                  Start something from Want to watch and it will appear here.
-                </InlineEmptyState>
+                <InlineEmptyState>{watchingEmptyMessage}</InlineEmptyState>
               )}
             </section>
 
@@ -277,7 +299,7 @@ const Home = () => {
 
             <section className="mt-[clamp(2.7rem,4vw,3.8rem)]">
               <CompactHeading
-                eyebrow={`${savedItems.length} available`}
+                eyebrow={`${savedCount} available`}
                 title="Want to watch"
               />
               {savedItems.length > 0 ? (
@@ -294,9 +316,7 @@ const Home = () => {
                   ))}
                 </div>
               ) : (
-                <InlineEmptyState>
-                  Your saved titles will live here when they become available.
-                </InlineEmptyState>
+                <InlineEmptyState>{savedEmptyMessage}</InlineEmptyState>
               )}
             </section>
           </TabsContent>
