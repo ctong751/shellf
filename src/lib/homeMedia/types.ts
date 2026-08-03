@@ -54,12 +54,16 @@ export interface SavedItem {
 
 export interface HomeMedia {
   recentItems: RecentItem[]
+  savedCount: number
   savedItems: SavedItem[]
+  watchingCount: number
   watchingItems: WatchingItem[]
 }
 
 export const emptyHomeMedia = (): HomeMedia => ({
   recentItems: [],
+  savedCount: 0,
   savedItems: [],
+  watchingCount: 0,
   watchingItems: [],
 })

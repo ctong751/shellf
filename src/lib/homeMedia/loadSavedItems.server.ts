@@ -1,5 +1,6 @@
 import { getMediaAccent } from '@/lib/homeMedia/accent'
 import { formatReleaseDate, formatRuntime } from '@/lib/homeMedia/format'
+import { loadMediaItems } from '@/lib/homeMedia/loadItems.server'
 import type { SavedContentRecord } from '@/lib/homeMedia/records'
 import type { SavedItem } from '@/lib/homeMedia/types'
 import type { TmdbRequestClient } from '@/lib/tmdb/createRequestClient.server'
@@ -9,8 +10,9 @@ export const loadSavedItems = (
   tmdb: TmdbRequestClient,
   records: SavedContentRecord[],
 ) =>
-  Promise.all(
-    records.map(async ({ content, save }): Promise<SavedItem> => {
+  loadMediaItems(
+    records,
+    async ({ content, save }): Promise<SavedItem> => {
       const tmdbId = Number(content.externalId)
       const accent = getMediaAccent(
         `${content.source}:${content.kind}:${content.externalId}`,
@@ -43,5 +45,6 @@ export const loadSavedItems = (
         runtime: formatRuntime(movie.runtime),
         title: movie.title,
       }
-    }),
+    },
+    'Failed to load saved title',
   )
